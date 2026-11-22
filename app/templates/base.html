@@ -1,0 +1,80 @@
+{% from "macros.html" import icon %}<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#3550dc">
+  <title>{% block title %}Цифровой деканат{% endblock %} · концепт</title>
+  <link rel="icon" href="/static/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/style.css?v=1">
+  <script src="/static/app.js?v=1" defer></script>
+</head>
+<body class="{% block body_class %}{% endblock %}">
+<div class="loadbar" aria-hidden="true"></div>
+<div class="concept" role="note">
+  <b>Концепт</b> для конкурса MGIMO×AI Challenge 2026 — не официальный сервис вуза. Все данные вымышлены.
+</div>
+{% if user %}
+{% set nav_student = [
+  ("/", "home", "Главная"),
+  ("/schedule", "calendar", "Расписание"),
+  ("/grades", "chart", "Оценки"),
+  ("/requests", "file", "Заявки"),
+  ("/notifications", "bell", "Уведомления")
+] %}
+{% set nav_staff = [
+  ("/staff", "inbox", "Заявки"),
+  ("/staff/news", "megaphone", "Рассылка"),
+  ("/notifications", "bell", "Уведомления"),
+  ("/profile", "user", "Профиль")
+] %}
+{% set nav = nav_staff if user.role == "staff" else nav_student %}
+{% macro is_active(href) -%}
+{%- if (href == "/" and path == "/") or (href != "/" and (path == href or path.startswith(href ~ "/"))) and not (href == "/staff" and path.startswith("/staff/news")) %} is-active{% endif -%}
+{%- endmacro %}
+<div class="app">
+  <aside class="sidebar">
+    <a class="brand" href="/">
+      <img src="/static/logo.svg" alt="" width="34" height="34">
+      <span><b>Цифровой деканат</b><small>концепт кабинета</small></span>
+    </a>
+    <nav class="side-nav" aria-label="Разделы">
+      {% for href, ic, label in nav %}
+      <a class="side-link{{ is_active(href) }}" href="{{ href }}">{{ icon(ic) }}<span>{{ label }}</span>
+        {% if href == "/notifications" and unread %}<span class="count">{{ unread }}</span>{% endif %}</a>
+      {% endfor %}
+    </nav>
+    <a class="side-user{% if path == '/profile' %} is-active{% endif %}" href="/profile">
+      <span class="avatar">{{ user.initials }}</span>
+      <span class="side-user-text"><b>{{ user.full_name.split()[0] }} {{ user.first_name }}</b>
+        <small>{% if user.role == "staff" %}{{ user.position }}{% else %}{{ user.group.name }} · {{ user.group.course }} курс{% endif %}</small></span>
+    </a>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <a class="brand brand-sm" href="/"><img src="/static/logo.svg" alt="" width="28" height="28"><b>Цифровой деканат</b></a>
+      <a class="avatar avatar-sm" href="/profile" aria-label="Профиль">{{ user.initials }}</a>
+    </header>
+    <main class="content" id="content">
+      {% block content %}{% endblock %}
+    </main>
+    <footer class="foot">
+      Учебный концепт · данные вымышлены · не является сервисом какого-либо вуза
+    </footer>
+  </div>
+</div>
+<nav class="tabbar" aria-label="Разделы">
+  {% for href, ic, label in nav %}
+  <a class="tab{{ is_active(href) }}" href="{{ href }}">
+    <span class="tab-ic">{{ icon(ic) }}{% if href == "/notifications" and unread %}<span class="dot">{{ unread if unread < 10 else "9+" }}</span>{% endif %}</span>
+    <span class="tab-label">{{ label }}</span>
+  </a>
+  {% endfor %}
+</nav>
+{% else %}
+  {% block guest %}{% endblock %}
+{% endif %}
+</body>
+</html>

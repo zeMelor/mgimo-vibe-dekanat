@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, badge, lesson, empty, deadline_row, status_badge %}
+{% block title %}Главная{% endblock %}
+{% block content %}
+<section class="hello">
+  <p class="hello-date">{{ today|ru_date(weekday=True) }} · {% if today.weekday() == 6 %}следующая неделя{% else %}неделя{% endif %}: {{ PARITY_LABEL[parity(default_week(today))] }}</p>
+  <h1>{% if now.hour < 12 %}Доброе утро{% elif now.hour < 18 %}Добрый день{% else %}Добрый вечер{% endif %}, {{ user.first_name }}</h1>
+  <p class="muted">{{ user.group.name }} · {{ user.group.course }} курс · {{ user.group.program.name }}</p>
+</section>
+
+<div class="grid-dash">
+  {# ---------- Пары ---------- #}
+  <section class="card span-2">
+    <div class="card-h">
+      <h2>{{ icon("calendar") }}{% if has_remaining %}Сегодня{% elif next_day %}Ближайшие пары — {{ next_day|rel_day }}{% else %}Пары{% endif %}</h2>
+      <a class="link" href="/schedule">Неделя {{ icon("right") }}</a>
+    </div>
+    {% if has_remaining %}
+      <div class="lessons">
+        {% for e in lessons if e.state != "past" %}{{ lesson(e) }}{% endfor %}
+      </div>
+    {% elif next_day %}
+      <p class="sub">{% if lessons %}На сегодня пары закончились.{% else %}Сегодня занятий нет.{% endif %} {{ next_day|ru_date(weekday=True)|capitalize }}:</p>
+      <div class="lessons">
+        {% for e in next_lessons %}{{ lesson(e) }}{% endfor %}
+      </div>
+    {% else %}
+      {{ empty("coffee", "Пар нет", "В ближайшие дни занятий в расписании нет.") }}
+    {% endif %}
+    {% if week_changes %}
+      <a class="hint hint-warn" href="/schedule">{{ icon("alert") }}<span>На этой неделе {{ week_changes }} {{ plural(week_changes, "изменение", "изменения", "изменений") }} в расписании</span>{{ icon("right") }}</a>
+    {% endif %}
+  </section>
+
+  {# ---------- Как дела ---------- #}
+  <section class="card status-card tone-{{ grades.tone }}">
+    <div class="card-h"><h2>{{ icon("chart") }}Как у меня дела</h2><a class="link" href="/grades">Подробнее {{ icon("right") }}</a></div>
+    <p class="status-head">{{ grades.headline }}</p>
+    <p class="status-text">{{ grades.text }}</p>
+    <div class="stats">
+      <div class="stat"><b>{{ grades.avg_pct if grades.avg_pct is not none else "—" }}{% if grades.avg_pct is not none %}%{% endif %}</b><span>баллов набрано от возможных</span></div>
+      <div class="stat"><b>{{ grades.gpa|decimal if grades.gpa else "—" }}</b><span>средний балл прошлых сессий</span></div>
+      <div class="stat{% if grades.debts %} stat-bad{% endif %}"><b>{{ grades.debts|length }}</b><span>{{ plural(grades.debts|length, "долг", "долга", "долгов") }}</span></div>
+    </div>
+    {% if grades.risk or grades.critical %}
+    <ul class="mini-list">
+      {% for r in grades.critical + grades.risk %}
+      <li><span class="dotc dotc-{{ r.status }}"></span>{{ r.course.name }} <span class="muted">— {{ r.earned }} из {{ r.so_far }} б.</span></li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </section>
+
+  {# ---------- Дедлайны ---------- #}
+  <section class="card">
+    <div class="card-h"><h2>{{ icon("clock") }}Ближайшие дедлайны</h2>{% if deadlines_total > 4 %}<a class="link" href="/notifications">Все {{ deadlines_total }} {{ icon("right") }}</a>{% endif %}</div>
+    {% if deadlines %}
+      <ul class="dl-list">{% for x in deadlines %}{{ deadline_row(x) }}{% endfor %}</ul>
+    {% else %}
+      {{ empty("check", "Свободно", "В ближайшие две недели дедлайнов нет.") }}
+    {% endif %}
+  </section>
+
+  {# ---------- Заявки ---------- #}
+  <section class="card">
+    <div class="card-h"><h2>{{ icon("file") }}Мои заявки</h2><a class="link" href="/requests">Все {{ icon("right") }}</a></div>
+    {% if active_requests %}
+      <ul class="req-mini">
+        {% for r in active_requests %}
+        <li><a href="/requests/{{ r.id }}"><span class="req-mini-title">{{ r.title }}</span>{{ status_badge(r.status) }}</a></li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="sub">Активных заявок нет.</p>
+    {% endif %}
+    <a class="btn btn-soft btn-block" href="/requests/new">{{ icon("plus") }}Заказать справку или подать заявление</a>
+  </section>
+
+  {# ---------- Уведомления ---------- #}
+  <section class="card">
+    <div class="card-h"><h2>{{ icon("bell") }}Уведомления{% if unread %} <span class="count">{{ unread }}</span>{% endif %}</h2><a class="link" href="/notifications">Все {{ icon("right") }}</a></div>
+    {% if notes %}
+      <ul class="note-mini">
+        {% for n in notes %}
+        <li class="{% if not n.read_at %}is-unread{% endif %}"><a href="/notifications/{{ n.id }}">
+          <span class="note-mini-title">{% if n.important %}<span class="imp">Важно</span> {% endif %}{{ n.title }}</span>
+          <span class="note-mini-time">{{ n.created_at|ru_datetime }}</span></a></li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      {{ empty("inbox", "Пока тихо", "Новости деканата и напоминания появятся здесь.") }}
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

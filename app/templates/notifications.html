@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, badge, empty, deadline_row, note_kind_icon %}
+{% block title %}Уведомления{% endblock %}
+{% block content %}
+<div class="page-h">
+  <div><h1>Уведомления</h1><p class="muted">{% if unread %}{{ unread }} {{ plural(unread, "непрочитанное", "непрочитанных", "непрочитанных") }}{% else %}Всё прочитано{% endif %}</p></div>
+  {% if unread %}
+  <form method="post" action="/notifications/read-all">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <button class="btn btn-ghost btn-sm" type="submit">{{ icon("check") }}<span>Прочитать все</span></button>
+  </form>
+  {% endif %}
+</div>
+
+{% if user.role == "student" %}
+<section class="card">
+  <div class="card-h"><h2>{{ icon("clock") }}Напоминания о дедлайнах</h2><span class="muted small">на 3 недели</span></div>
+  {% if deadlines %}
+    <ul class="dl-list">{% for x in deadlines %}{{ deadline_row(x) }}{% endfor %}</ul>
+  {% else %}
+    {{ empty("check", "Дедлайнов нет", "В ближайшие три недели ничего сдавать не нужно.") }}
+  {% endif %}
+</section>
+{% endif %}
+
+<nav class="filters" aria-label="Фильтр">
+  <a class="filter{% if kind == 'all' %} is-active{% endif %}" href="/notifications">Все</a>
+  {% for k, label in kinds.items() %}
+  <a class="filter{% if kind == k %} is-active{% endif %}" href="/notifications?kind={{ k }}">{{ label }}</a>
+  {% endfor %}
+</nav>
+
+<section class="card">
+  {% if rows %}
+  <ul class="feed">
+    {% for n in rows %}
+    <li class="feed-item{% if not n.read_at %} is-unread{% endif %}">
+      <a href="/notifications/{{ n.id }}">
+        <span class="feed-ic feed-{{ n.kind }}">{{ note_kind_icon(n.kind) }}</span>
+        <span class="feed-body">
+          <span class="feed-title">{% if n.important %}<span class="imp">Важно</span> {% endif %}{{ n.title }}</span>
+          {% if n.body %}<span class="feed-text">{{ n.body }}</span>{% endif %}
+          <span class="feed-meta">{{ kinds.get(n.kind, "") }} · {{ n.created_at|ru_datetime }}</span>
+        </span>
+        {% if not n.read_at %}<span class="unread-dot" aria-label="Не прочитано"></span>{% endif %}
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    {{ empty("inbox", "Здесь пока пусто", "Когда деканат опубликует новость или что-то изменится в расписании и заявках, уведомление появится здесь.") }}
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, badge, status_badge %}
+{% block title %}Заявка № {{ req.id }}{% endblock %}
+{% block content %}
+<a class="back" href="/requests">{{ icon("left") }}Заявки</a>
+
+{% if ok == "created" %}
+<div class="alert alert-good">{{ icon("check") }}<span>Заявка отправлена в деканат. Статус будет меняться здесь, а мы пришлём уведомление.</span></div>
+{% elif ok == "cancelled" %}
+<div class="alert alert-info">{{ icon("check") }}<span>Заявка отозвана.</span></div>
+{% elif ok == "locked" %}
+<div class="alert alert-warn">{{ icon("alert") }}<span>Заявку уже взяли в работу — отозвать её можно только через деканат.</span></div>
+{% endif %}
+
+<div class="page-h">
+  <div><h1>{{ req.title }}</h1><p class="muted">Заявка № {{ req.id }} · подана {{ req.created_at|ru_datetime }}</p></div>
+  {{ status_badge(req.status) }}
+</div>
+
+{% set steps = ["submitted", "in_progress", "ready", "done"] %}
+{% if req.status in steps %}
+<ol class="stepper">
+  {% for st in steps %}
+  {% set idx = steps.index(req.status) %}
+  <li class="{% if loop.index0 < idx %}is-done{% elif loop.index0 == idx %}is-current{% endif %}"><span class="step-dot">{% if loop.index0 < idx %}{{ icon("check") }}{% else %}{{ loop.index }}{% endif %}</span><span class="step-label">{{ STATUS_LABEL[st] }}</span></li>
+  {% endfor %}
+</ol>
+{% endif %}
+
+{% if req.status == "ready" or req.status == "done" %}
+  {% if req.delivery == "electronic" %}
+  <section class="card card-good">
+    <div class="ready">
+      <div>{{ icon("check") }}</div>
+      <div><b>Документ готов</b><p class="muted small">Электронная версия с отметкой деканата. Её можно открыть и сохранить в PDF.</p></div>
+      <a class="btn btn-primary btn-sm" href="/requests/{{ req.id }}/document">{{ icon("download") }}Открыть</a>
+    </div>
+  </section>
+  {% elif req.status == "ready" %}
+  <section class="card card-good">
+    <div class="ready"><div>{{ icon("check") }}</div><div><b>Можно забирать</b><p class="muted small">{{ user.group.program.faculty.office }} · {{ user.group.program.faculty.hours }}. Возьмите студенческий билет.</p></div></div>
+  </section>
+  {% endif %}
+{% endif %}
+
+{% if req.status == "rejected" and req.staff_comment %}
+<section class="card card-bad">
+  <div class="ready"><div>{{ icon("alert") }}</div><div><b>Причина отказа</b><p>{{ req.staff_comment }}</p></div></div>
+  <a class="btn btn-soft btn-sm" href="/requests/new?type={{ req.type_code }}">Подать заново</a>
+</section>
+{% endif %}
+
+<div class="grid-2">
+  <section class="card">
+    <div class="card-h"><h2>Детали</h2></div>
+    <dl class="dl-table">
+      {% if spec %}<dt>{{ spec.purpose_label }}</dt><dd>{{ req.purpose or "—" }}</dd>{% endif %}
+      {% if spec and spec.cat == "cert" %}<dt>Экземпляров</dt><dd>{{ req.copies }}</dd>{% endif %}
+      <dt>Получение</dt><dd>{{ DELIVERY_LABEL[req.delivery] }}</dd>
+      {% if req.comment %}<dt>Комментарий</dt><dd>{{ req.comment }}</dd>{% endif %}
+      {% if spec %}<dt>Срок</dt><dd>до {{ spec.days }} {{ plural(spec.days, "рабочего дня", "рабочих дней", "рабочих дней") }}</dd>{% endif %}
+    </dl>
+    {% if req.status == "submitted" %}
+    <form method="post" action="/requests/{{ req.id }}/cancel" data-confirm="Отозвать заявку?">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <button class="btn btn-ghost btn-sm" type="submit">{{ icon("x") }}Отозвать заявку</button>
+    </form>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <div class="card-h"><h2>История</h2></div>
+    <ol class="timeline">
+      {% for ev in req.events|reverse %}
+      <li class="tl tl-{{ STATUS_TONE[ev.status] }}">
+        <div class="tl-dot"></div>
+        <div><b>{{ STATUS_LABEL[ev.status] }}</b><span class="muted small"> · {{ ev.created_at|ru_datetime }}</span>
+          {% if ev.comment %}<p class="tl-comment">{{ ev.comment }}</p>{% endif %}
+          <p class="muted small">{{ "Вы" if ev.actor == user.full_name else ev.actor ~ ", деканат" }}</p></div>
+      </li>
+      {% endfor %}
+    </ol>
+  </section>
+</div>
+{% endblock %}

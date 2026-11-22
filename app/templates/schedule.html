@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, badge, lesson, empty %}
+{% block title %}Расписание{% endblock %}
+{% block content %}
+<div class="page-h">
+  <div>
+    <h1>Расписание</h1>
+    <p class="muted">{{ user.group.name }} · {% if view == "week" %}неделя: {{ PARITY_LABEL[week_parity] }}{% else %}{{ today|ru_date(weekday=True) }}{% endif %}</p>
+  </div>
+  <a class="btn btn-ghost btn-sm" href="/schedule.ics" title="Добавить пары в календарь телефона">{{ icon("download") }}<span class="hide-xs">В календарь</span></a>
+</div>
+
+<div class="seg" role="tablist">
+  <a class="seg-item{% if view == 'today' %} is-active{% endif %}" href="/schedule?view=today">Сегодня</a>
+  <a class="seg-item{% if view == 'week' %} is-active{% endif %}" href="/schedule">Неделя</a>
+</div>
+
+{% if view == "today" %}
+  <section class="card">
+    <div class="card-h"><h2>{{ today|ru_date(weekday=True)|capitalize }}</h2></div>
+    {% if lessons and lessons|selectattr("active")|list %}
+      <div class="lessons">{% for e in lessons %}{{ lesson(e) }}{% endfor %}</div>
+    {% else %}
+      {% if lessons %}<div class="lessons">{% for e in lessons %}{{ lesson(e) }}{% endfor %}</div>{% endif %}
+      {{ empty("coffee", "Сегодня пар нет", ("Ближайшие занятия — " ~ (next_day|ru_date(weekday=True)) ~ ".") if next_day else "В ближайшие дни занятий нет.") }}
+    {% endif %}
+  </section>
+  {% if next_day and next_lessons %}
+  <section class="card">
+    <div class="card-h"><h2>{{ next_day|ru_date(weekday=True)|capitalize }}</h2><span class="muted small">{{ next_day|rel_day }}</span></div>
+    <div class="lessons">{% for e in next_lessons %}{{ lesson(e) }}{% endfor %}</div>
+  </section>
+  {% endif %}
+{% else %}
+  <div class="week-nav">
+    <a class="icon-btn" href="/schedule?week={{ prev_week }}" aria-label="Предыдущая неделя">{{ icon("left") }}</a>
+    <div class="week-title">
+      <b>{{ monday|ru_date }} — {{ days[-1].date|ru_date }}</b>
+      {% if monday != this_week %}<a class="link small" href="/schedule">к текущей неделе</a>{% else %}<span class="muted small">текущая неделя</span>{% endif %}
+    </div>
+    <a class="icon-btn" href="/schedule?week={{ next_week }}" aria-label="Следующая неделя">{{ icon("right") }}</a>
+  </div>
+
+  <nav class="day-chips" aria-label="Дни недели">
+    {% for d in days %}
+    <a class="chip{% if d.date == today %} is-today{% endif %}{% if not d.lessons %} is-empty{% endif %}" href="#d-{{ d.date }}">
+      <span>{{ WEEKDAYS_SHORT[d.date.weekday()] }}</span><b>{{ d.date.day }}</b>{% if d.changes %}<i class="chip-dot" title="Есть изменения"></i>{% endif %}
+    </a>
+    {% endfor %}
+  </nav>
+
+  {% if total_changes %}
+  <div class="alert alert-warn">{{ icon("alert") }}<span>На этой неделе {{ total_changes }} {{ plural(total_changes, "изменение", "изменения", "изменений") }}: они отмечены цветом.</span></div>
+  {% endif %}
+
+  {% for d in days %}
+  <section class="card day{% if d.date == today %} day-today{% endif %}{% if d.date < today %} day-past{% endif %}" id="d-{{ d.date }}">
+    <div class="card-h">
+      <h2>{{ WEEKDAYS[d.date.weekday()]|capitalize }}, {{ d.date|ru_date }}</h2>
+      {% if d.date == today %}{{ badge("Сегодня", "primary") }}{% elif d.changes %}{{ badge(d.changes ~ " " ~ plural(d.changes, "изменение", "изменения", "изменений"), "warn") }}{% endif %}
+    </div>
+    {% if d.lessons %}
+      <div class="lessons">{% for e in d.lessons %}{{ lesson(e) }}{% endfor %}</div>
+    {% else %}
+      <p class="day-empty">{{ icon("coffee") }}Занятий нет</p>
+    {% endif %}
+  </section>
+  {% endfor %}
+{% endif %}
+{% endblock %}

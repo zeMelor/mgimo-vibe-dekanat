@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.venv/
+data/
+.env
+*.local.md
+.pytest_cache/
+docs/screenshots/raw/

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon %}
+{% block title %}Рассылка{% endblock %}
+{% block content %}
+<div class="page-h"><div><h1>Новость или напоминание</h1><p class="muted">Студенты увидят его в уведомлениях</p></div></div>
+{% if ok %}<div class="alert alert-good">{{ icon("check") }}<span>Отправлено: {{ ok }} {{ plural(ok|int, "студенту", "студентам", "студентам") }}.</span></div>{% endif %}
+<section class="card">
+  <form method="post" action="/staff/news" class="form" data-loading novalidate>
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <label class="field{% if errors.audience %} has-error{% endif %}">
+      <span class="label">Кому</span>
+      <select class="input" name="audience">
+        <option value="all">Всем студентам</option>
+        {% for g in groups %}<option value="{{ g.id }}"{% if form.audience == g.id|string %} selected{% endif %}>Группа {{ g.name }}</option>{% endfor %}
+      </select>
+      {% if errors.audience %}<span class="error">{{ errors.audience }}</span>{% endif %}
+    </label>
+    <label class="field{% if errors.title %} has-error{% endif %}">
+      <span class="label">Заголовок <i class="req-star">*</i></span>
+      <input class="input" name="title" value="{{ form.title or '' }}" maxlength="150" placeholder="Например: Продлён приём заявлений на материальную помощь">
+      {% if errors.title %}<span class="error">{{ errors.title }}</span>{% endif %}
+    </label>
+    <label class="field{% if errors.body %} has-error{% endif %}">
+      <span class="label">Текст</span>
+      <textarea class="input" name="body" rows="4" maxlength="2000">{{ form.body or '' }}</textarea>
+      {% if errors.body %}<span class="error">{{ errors.body }}</span>{% endif %}
+    </label>
+    <label class="check"><input type="checkbox" name="important" value="1"{% if form.important %} checked{% endif %}><span>Отметить как важное</span></label>
+    <button class="btn btn-primary btn-block" type="submit" data-loading-text="Отправляем…">{{ icon("send") }}Отправить</button>
+  </form>
+</section>
+{% endblock %}

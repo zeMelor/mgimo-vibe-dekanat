@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, badge %}
+{% block title %}Профиль{% endblock %}
+{% block content %}
+<section class="card profile-head">
+  <span class="avatar avatar-lg">{{ user.initials }}</span>
+  <div>
+    <h1>{{ user.full_name }}</h1>
+    <p class="muted">{% if user.role == "staff" %}{{ user.position }}{% else %}Студент · {{ group.name }}{% endif %}</p>
+  </div>
+</section>
+
+<div class="grid-2">
+  {% if user.role == "student" %}
+  <section class="card">
+    <div class="card-h"><h2>{{ icon("user") }}Учёба</h2></div>
+    <dl class="dl-table">
+      <dt>Факультет</dt><dd>{{ faculty.name }}</dd>
+      <dt>Направление</dt><dd>{{ program.code }} «{{ program.name }}»{% if program.profile %}<br><span class="muted small">профиль «{{ program.profile }}»</span>{% endif %}</dd>
+      <dt>Курс</dt><dd>{{ group.course }} курс, {{ group.semester }} семестр</dd>
+      <dt>Группа</dt><dd>{{ group.name }}</dd>
+      <dt>Форма и основа</dt><dd>{{ user.study_form|capitalize }}, {{ user.funding }}</dd>
+      <dt>Зачётная книжка</dt><dd>{{ user.record_book }}</dd>
+      <dt>Почта</dt><dd>{{ user.email }}</dd>
+    </dl>
+  </section>
+  <section class="card">
+    <div class="card-h"><h2>{{ icon("phone") }}Деканат</h2></div>
+    <dl class="dl-table">
+      <dt>Где</dt><dd>{{ faculty.office }}</dd>
+      <dt>Часы</dt><dd>{{ faculty.hours }}</dd>
+      <dt>Телефон</dt><dd>{{ faculty.phone }}</dd>
+      <dt>Почта</dt><dd>{{ faculty.email }}</dd>
+    </dl>
+    <p class="muted small">Контакты вымышленные. Справку или заявление быстрее оформить онлайн —
+      <a class="link" href="/requests/new">в разделе «Заявки»</a>.</p>
+  </section>
+  {% else %}
+  <section class="card">
+    <div class="card-h"><h2>{{ icon("user") }}Сотрудник</h2></div>
+    <dl class="dl-table">
+      <dt>Должность</dt><dd>{{ user.position }}</dd>
+      <dt>Доступ</dt><dd>Заявки студентов обоих факультетов, рассылка уведомлений</dd>
+      <dt>Почта</dt><dd>{{ user.email }}</dd>
+    </dl>
+  </section>
+  {% endif %}
+
+  <section class="card">
+    <div class="card-h"><h2>{{ icon("shield") }}Безопасность</h2></div>
+    <p class="sub">Активных входов: {{ sessions }}. Сессия действует 7 дней, потом нужно войти снова.</p>
+    <div class="btn-row">
+      <form method="post" action="/logout">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <button class="btn btn-primary btn-sm" type="submit">{{ icon("logout") }}Выйти</button>
+      </form>
+      {% if sessions > 1 %}
+      <form method="post" action="/profile/logout-all" data-confirm="Выйти на всех устройствах?">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <button class="btn btn-ghost btn-sm" type="submit">Выйти на всех устройствах</button>
+      </form>
+      {% endif %}
+    </div>
+  </section>
+</div>
+{% endblock %}

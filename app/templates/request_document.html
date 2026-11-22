@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>{{ req.title }} № {{ req.id }} · образец</title>
+  <link rel="stylesheet" href="/static/style.css?v=1">
+  <script src="/static/app.js?v=1" defer></script>
+</head>
+<body class="doc-body">
+  <div class="doc-actions no-print">
+    <a class="btn btn-ghost btn-sm" href="{{ '/staff/requests/' ~ req.id if user.role == 'staff' else '/requests/' ~ req.id }}">← К заявке</a>
+    <button class="btn btn-primary btn-sm" type="button" data-print>Сохранить в PDF / печать</button>
+  </div>
+  <article class="doc">
+    <div class="doc-watermark" aria-hidden="true">ОБРАЗЕЦ · КОНЦЕПТ</div>
+    <p class="doc-warning">Учебный образец для конкурса MGIMO×AI Challenge 2026. Документом не является, все данные вымышлены.</p>
+    <header class="doc-head">
+      <img src="/static/logo.svg" alt="" width="40" height="40">
+      <div><b>Цифровой деканат (концепт)</b><br>{{ s.group.program.faculty.name }}</div>
+    </header>
+    <h1 class="doc-title">{{ req.title|upper }}</h1>
+    <p class="doc-num">№ {{ req.id }}-{{ req.created_at.year }} от {{ req.updated_at|ru_date }} {{ req.updated_at.year }} г.</p>
+    <p>Выдана <b>{{ s.full_name }}</b> в том, что он(а) является студентом(кой) {{ s.group.course }} курса
+      {{ s.study_form }} формы обучения, группа {{ s.group.name }}, направление подготовки
+      {{ s.group.program.code }} «{{ s.group.program.name }}», основа обучения — {{ s.funding }}.</p>
+    <p>Номер зачётной книжки: {{ s.record_book }}. Год поступления: {{ s.enrolled_year }}.</p>
+    {% if req.type_code == "retake" %}<p>Направляется на пересдачу по дисциплине «{{ req.purpose }}».</p>
+    {% elif req.purpose %}<p>Справка выдана для предоставления: {{ req.purpose }}.</p>{% endif %}
+    <footer class="doc-foot">
+      <div>Специалист учебного офиса<br><span class="muted">подпись (образец)</span></div>
+      <div class="doc-stamp">ОБРАЗЕЦ<br>без печати</div>
+    </footer>
+  </article>
+</body>
+</html>

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon %}
+{% block title %}Вход{% endblock %}
+{% block body_class %}page-login{% endblock %}
+{% block guest %}
+<main class="login">
+  <section class="login-card">
+    <div class="login-brand">
+      <img src="/static/logo.svg" alt="" width="44" height="44">
+      <div><h1>Цифровой деканат</h1><p>Учёба, документы и связь с деканатом — в одном месте</p></div>
+    </div>
+
+    {% if request.query_params.get("bye") %}
+    <div class="alert alert-info">{{ icon("check") }}<span>Вы вышли из кабинета.</span></div>
+    {% endif %}
+    {% if error %}
+    <div class="alert alert-bad" role="alert">{{ icon("alert") }}<span>{{ error }}</span></div>
+    {% endif %}
+
+    <form method="post" action="/login" class="form" data-loading>
+      <input type="hidden" name="next" value="{{ next }}">
+      <label class="field">
+        <span class="label">Логин</span>
+        <input class="input" name="login" value="{{ login_value }}" autocomplete="username"
+               autocapitalize="none" spellcheck="false" required maxlength="50" {% if not login_value %}autofocus{% endif %}>
+      </label>
+      <label class="field">
+        <span class="label">Пароль</span>
+        <input class="input" type="password" name="password" autocomplete="current-password" required
+               maxlength="128" {% if login_value %}autofocus{% endif %}>
+      </label>
+      <button class="btn btn-primary btn-block" type="submit" data-loading-text="Входим…">Войти</button>
+    </form>
+
+    <div class="login-note">
+      {{ icon("info") }}
+      <p>Это <b>демонстрационный прототип</b> для конкурса. Логины и пароли тестовых аккаунтов указаны в описании конкурсной работы. Настоящие учётные записи вуза здесь не работают — не вводите их.</p>
+    </div>
+  </section>
+  <p class="login-foot">Концепт для конкурса MGIMO×AI Challenge 2026 · не официальный сервис · данные вымышлены</p>
+</main>
+{% endblock %}

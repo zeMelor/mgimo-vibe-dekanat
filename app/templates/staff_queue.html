@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, badge, empty, status_badge %}
+{% block title %}Заявки студентов{% endblock %}
+{% block content %}
+<div class="page-h">
+  <div><h1>Заявки студентов</h1><p class="muted">Кабинет сотрудника деканата</p></div>
+</div>
+
+<form class="search" method="get" action="/staff" role="search">
+  <input type="hidden" name="status" value="{{ status }}">
+  {{ icon("search") }}<input class="input" name="q" value="{{ q }}" placeholder="ФИО студента или вид документа" maxlength="60">
+</form>
+
+<nav class="filters" aria-label="Статус">
+  {% set open_count = counts.get("submitted", 0) + counts.get("in_progress", 0) %}
+  <a class="filter{% if status == 'open' %} is-active{% endif %}" href="/staff?status=open">Открытые <b>{{ open_count }}</b></a>
+  {% for st in ["submitted", "in_progress", "ready", "done", "rejected"] %}
+  <a class="filter{% if status == st %} is-active{% endif %}" href="/staff?status={{ st }}">{{ STATUS_LABEL[st] }} <b>{{ counts.get(st, 0) }}</b></a>
+  {% endfor %}
+  <a class="filter{% if status == 'all' %} is-active{% endif %}" href="/staff?status=all">Все</a>
+</nav>
+
+<section class="card">
+  {% if rows %}
+  <ul class="req-list">
+    {% for r in rows %}
+    <li><a class="req" href="/staff/requests/{{ r.id }}">
+      <div class="req-main"><b>{{ r.title }}</b>
+        <span class="muted small">№ {{ r.id }} · {{ r.student.full_name }} · {{ r.student.group.name }} · {{ r.created_at|ru_datetime }}</span></div>
+      {{ status_badge(r.status) }}
+    </a></li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    {{ empty("inbox", "Заявок нет", "По этому фильтру ничего не найдено." if q else "Новые заявки студентов появятся здесь.") }}
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, badge, empty, status_badge %}
+{% block title %}Заявки и справки{% endblock %}
+{% block content %}
+<div class="page-h">
+  <div><h1>Заявки и справки</h1><p class="muted">Закажите документ онлайн и следите за статусом</p></div>
+  <a class="btn btn-primary btn-sm" href="/requests/new">{{ icon("plus") }}<span>Новая</span></a>
+</div>
+
+<section class="quick">
+  <a class="quick-item" href="/requests/new?type=study">{{ icon("file") }}<span>Справка об обучении</span><small>1 день · электронно</small></a>
+  <a class="quick-item" href="/requests/new?type=military">{{ icon("shield") }}<span>Для военкомата</span><small>3 дня · на бумаге</small></a>
+  <a class="quick-item" href="/requests/new?type=transcript">{{ icon("chart") }}<span>Выписка оценок</span><small>7 дней</small></a>
+  <a class="quick-item" href="/requests/new">{{ icon("plus") }}<span>Другое</span><small>все виды</small></a>
+</section>
+
+<section class="card">
+  <div class="card-h"><h2>В работе</h2><span class="muted small">{{ active|length }}</span></div>
+  {% if active %}
+  <ul class="req-list">
+    {% for r in active %}
+    <li><a class="req" href="/requests/{{ r.id }}">
+      <div class="req-main"><b>{{ r.title }}</b><span class="muted small">№ {{ r.id }} · подана {{ r.created_at|ru_date }}{% if r.purpose %} · {{ r.purpose }}{% endif %}</span>
+        {% if r.staff_comment and r.status == "ready" %}<span class="req-comment">{{ r.staff_comment }}</span>{% endif %}</div>
+      {{ status_badge(r.status) }}
+    </a></li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    {{ empty("inbox", "Активных заявок нет", "Нужна справка или хотите подать заявление? Это займёт минуту.", "/requests/new", "Новая заявка") }}
+  {% endif %}
+</section>
+
+{% if archive %}
+<section class="card">
+  <div class="card-h"><h2>Архив</h2><span class="muted small">{{ archive|length }}</span></div>
+  <ul class="req-list">
+    {% for r in archive %}
+    <li><a class="req" href="/requests/{{ r.id }}">
+      <div class="req-main"><b>{{ r.title }}</b><span class="muted small">№ {{ r.id }} · {{ r.updated_at|ru_date }}</span></div>
+      {{ status_badge(r.status) }}
+    </a></li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% endblock %}

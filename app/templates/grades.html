@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, badge, empty %}
+{% block title %}Успеваемость{% endblock %}
+{% block content %}
+<div class="page-h">
+  <div><h1>Успеваемость</h1><p class="muted">{{ user.group.semester }} семестр · {{ user.group.name }}</p></div>
+</div>
+
+<section class="card status-card tone-{{ grades.tone }}">
+  <p class="status-head">{{ grades.headline }}</p>
+  <p class="status-text">{{ grades.text }}</p>
+  <div class="stats">
+    <div class="stat"><b>{{ grades.avg_pct if grades.avg_pct is not none else "—" }}{% if grades.avg_pct is not none %}%{% endif %}</b><span>баллов набрано от возможных</span></div>
+    <div class="stat"><b>{{ grades.gpa|decimal if grades.gpa else "—" }}</b><span>средний балл прошлых сессий</span></div>
+    <div class="stat{% if grades.debts %} stat-bad{% endif %}"><b>{{ grades.debts|length }}</b><span>{{ plural(grades.debts|length, "долг", "долга", "долгов") }}</span></div>
+  </div>
+  {% if grades.scholarship %}
+  <p class="hint hint-{{ grades.scholarship[0] }}">{{ icon("spark") }}<span>{{ grades.scholarship[1] }}</span></p>
+  {% endif %}
+</section>
+
+<nav class="anchors">
+  <a href="#current">Текущий семестр</a><a href="#session">Сессия</a>{% if grades.debts %}<a href="#debts" class="anchor-bad">Долги</a>{% endif %}<a href="#archive">Прошлые сессии</a>
+</nav>
+
+{% if grades.debts %}
+<section class="card card-bad" id="debts">
+  <div class="card-h"><h2>{{ icon("alert") }}Академическая задолженность</h2></div>
+  <ul class="debt-list">
+    {% for r in grades.debts %}
+    <li>
+      <div><b>{{ r.course }}</b><p class="muted small">{{ r.semester }} семестр · {{ CONTROL_LABEL[r.control] }} · {{ r.grade }}{% if r.points %} ({{ r.points }} б.){% endif %}</p></div>
+      {% if r.retake_at %}<div class="debt-when"><b>Пересдача {{ r.retake_at|ru_date(weekday=True, short=True) }}, {{ "%02d:%02d"|format(r.retake_at.hour, r.retake_at.minute) }}</b><span class="muted small">{{ r.retake_room }} · {{ r.retake_at|rel_day }}</span></div>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  <p class="sub">Для пересдачи нужно направление из деканата. <a class="link" href="/requests/new?type=retake">Заказать направление</a></p>
+</section>
+{% endif %}
+
+<section id="current">
+  <h2 class="section-title">Текущий семестр <span class="muted small">баллы текущего контроля, максимум {{ SEMESTER_MAX }}, допуск от {{ ADMISSION }}</span></h2>
+  {% if grades.rows %}
+  <div class="course-list">
+    {% for r in grades.rows %}
+    <details class="card course course-{{ r.status }}">
+      <summary>
+        <div class="course-top">
+          <div class="course-name"><h3>{{ r.course.name }}</h3><p class="muted small">{{ CONTROL_LABEL[r.course.control] }} · {{ r.course.teacher }}</p></div>
+          <div class="course-score"><b>{{ r.earned }}</b><span>/ {{ r.total }}</span></div>
+        </div>
+        <div class="bar" aria-label="Набрано {{ r.earned }} из {{ r.total }}">
+          <span class="bar-sofar {{ r.w_so_far }}"></span>
+          <span class="bar-fill {{ r.w_earned }}"></span>
+          <span class="bar-mark {{ r.w_admission }}" title="Порог допуска"></span>
+        </div>
+        <div class="course-bottom">
+          {% set tone = {"good": "good", "ok": "info", "risk": "warn", "critical": "bad", "none": "neutral"}[r.status] %}
+          {{ badge(r.label, tone) }}
+          {% if r.next_item %}<span class="muted small">Дальше: {{ r.next_item.title }} — {{ r.next_item.due|rel_day }}</span>{% endif %}
+          <span class="course-more">Подробнее</span>
+        </div>
+      </summary>
+      <div class="course-details">
+        <p class="advice">{{ r.advice }}</p>
+        <ul class="kt-list">
+          {% for a in r.kts %}
+          <li><span>{{ a.title }}{% if a.points is none and a.due %} <span class="muted small">· до {{ a.due|ru_date }}</span>{% endif %}</span>
+            <b>{% if a.points is none %}<span class="muted">— / {{ a.max_points }}</span>{% else %}{{ a.points }} / {{ a.max_points }}{% endif %}</b></li>
+          {% endfor %}
+        </ul>
+      </div>
+    </details>
+    {% endfor %}
+  </div>
+  {% else %}
+    <div class="card">{{ empty("chart", "Оценок пока нет", "Они появятся после первых контрольных точек.") }}</div>
+  {% endif %}
+</section>
+
+<section class="card" id="session">
+  <div class="card-h"><h2>{{ icon("calendar") }}Расписание сессии</h2></div>
+  {% if exams %}
+  <ul class="exam-list">
+    {% for e in exams %}
+    <li class="exam exam-{{ e.kind }}">
+      <div class="exam-date"><b>{{ e.at.day }}</b><span>{{ e.at|ru_date|replace(e.at.day|string ~ " ", "") }}</span></div>
+      <div class="exam-body">
+        <p class="exam-title">{{ e.title }}</p>
+        <p class="muted small">{{ CONTROL_LABEL[e.kind] }} · {{ WEEKDAYS_SHORT[e.at.weekday()] }}, {{ "%02d:%02d"|format(e.at.hour, e.at.minute) }} · {{ e.room }} · {{ e.teacher }}</p>
+      </div>
+      <span class="dl-left">{{ e.at|rel_day }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    {{ empty("calendar", "Расписание сессии ещё не опубликовано", "Как только деканат его выложит, придёт уведомление.") }}
+  {% endif %}
+</section>
+
+<section class="card" id="archive">
+  <div class="card-h"><h2>{{ icon("check") }}Прошлые сессии</h2></div>
+  {% if grades.semesters %}
+    {% for s in grades.semesters %}
+    <details class="sem"{% if loop.first %} open{% endif %}>
+      <summary><b>{{ s.semester }} семестр</b>{% if s.avg %}<span class="muted small">средний балл {{ s.avg|decimal }}</span>{% endif %}</summary>
+      <ul class="past-list">
+        {% for r in s.results %}
+        <li><span>{{ r.course }}<span class="muted small"> · {{ CONTROL_LABEL[r.control] }}</span></span>
+          {% set tone = "bad" if r.debt else ("good" if r.grade in ("отлично", "зачтено") else ("info" if r.grade == "хорошо" else "warn")) %}
+          {{ badge(r.grade, tone) }}</li>
+        {% endfor %}
+      </ul>
+    </details>
+    {% endfor %}
+  {% else %}
+    {{ empty("check", "Прошлых сессий пока нет", "Первая сессия ещё впереди.") }}
+  {% endif %}
+</section>
+{% endblock %}

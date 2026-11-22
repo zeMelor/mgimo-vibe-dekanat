@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, badge, status_badge %}
+{% block title %}Заявка № {{ req.id }}{% endblock %}
+{% block content %}
+<a class="back" href="/staff">{{ icon("left") }}Все заявки</a>
+{% if ok == "updated" %}<div class="alert alert-good">{{ icon("check") }}<span>Статус обновлён, студент получил уведомление.</span></div>{% endif %}
+{% if error %}<div class="alert alert-bad">{{ icon("alert") }}<span>{{ error }}</span></div>{% endif %}
+
+<div class="page-h">
+  <div><h1>{{ req.title }}</h1><p class="muted">№ {{ req.id }} · {{ req.created_at|ru_datetime }}</p></div>
+  {{ status_badge(req.status) }}
+</div>
+
+<div class="grid-2">
+  <section class="card">
+    <div class="card-h"><h2>{{ icon("user") }}Студент</h2></div>
+    {% set s = req.student %}
+    <dl class="dl-table">
+      <dt>ФИО</dt><dd>{{ s.full_name }}</dd>
+      <dt>Группа</dt><dd>{{ s.group.name }}, {{ s.group.course }} курс</dd>
+      <dt>Направление</dt><dd>{{ s.group.program.code }} «{{ s.group.program.name }}»</dd>
+      <dt>Основа</dt><dd>{{ s.funding }}</dd>
+      <dt>Зачётка</dt><dd>{{ s.record_book }}</dd>
+    </dl>
+    <div class="card-h"><h2>{{ icon("file") }}Заявка</h2></div>
+    <dl class="dl-table">
+      {% if spec %}<dt>{{ spec.purpose_label }}</dt><dd>{{ req.purpose or "—" }}</dd>{% endif %}
+      {% if spec and spec.cat == "cert" %}<dt>Экземпляров</dt><dd>{{ req.copies }}</dd>{% endif %}
+      <dt>Получение</dt><dd>{{ DELIVERY_LABEL[req.delivery] }}</dd>
+      {% if req.comment %}<dt>Комментарий</dt><dd>{{ req.comment }}</dd>{% endif %}
+    </dl>
+  </section>
+
+  <section class="card">
+    {% if options %}
+    <div class="card-h"><h2>{{ icon("send") }}Изменить статус</h2></div>
+    <form method="post" action="/staff/requests/{{ req.id }}" class="form" data-loading>
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <fieldset class="field">
+        <legend class="label">Новый статус</legend>
+        <div class="radios radios-col">
+          {% for st in options %}
+          <label class="radio"><input type="radio" name="new_status" value="{{ st }}"{% if loop.first %} checked{% endif %}><span>{{ STATUS_LABEL[st] }}</span></label>
+          {% endfor %}
+        </div>
+      </fieldset>
+      <label class="field">
+        <span class="label">Комментарий студенту</span>
+        <textarea class="input" name="comment" rows="3" maxlength="1000" placeholder="Например: заберите в каб. 214 после 14:00. При отказе — обязательно причина."></textarea>
+      </label>
+      <button class="btn btn-primary btn-block" type="submit" data-loading-text="Сохраняем…">Сохранить и уведомить студента</button>
+    </form>
+    {% else %}
+    <p class="sub">Заявка закрыта, менять статус больше не нужно.</p>
+    {% endif %}
+    {% if req.delivery == "electronic" and req.status in ("ready", "done") %}
+    <a class="btn btn-soft btn-sm" href="/requests/{{ req.id }}/document">{{ icon("download") }}Электронный документ</a>
+    {% endif %}
+    <div class="card-h"><h2>История</h2></div>
+    <ol class="timeline">
+      {% for ev in req.events|reverse %}
+      <li class="tl tl-{{ STATUS_TONE[ev.status] }}"><div class="tl-dot"></div>
+        <div><b>{{ STATUS_LABEL[ev.status] }}</b><span class="muted small"> · {{ ev.created_at|ru_datetime }}</span>
+          {% if ev.comment %}<p class="tl-comment">{{ ev.comment }}</p>{% endif %}
+          <p class="muted small">{{ ev.actor }}</p></div></li>
+      {% endfor %}
+    </ol>
+  </section>
+</div>
+{% endblock %}

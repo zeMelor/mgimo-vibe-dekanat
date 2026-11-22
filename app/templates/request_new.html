@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, badge %}
+{% block title %}Новая заявка{% endblock %}
+{% block content %}
+<a class="back" href="{{ '/requests/new' if spec else '/requests' }}">{{ icon("left") }}{{ "Все виды заявок" if spec else "Заявки" }}</a>
+
+{% if not spec %}
+<div class="page-h"><div><h1>Что нужно оформить?</h1><p class="muted">Выберите вид документа</p></div></div>
+{% for cat, cat_title in [("cert", "Справки"), ("stmt", "Заявления")] %}
+<section class="card">
+  <div class="card-h"><h2>{{ cat_title }}</h2></div>
+  <ul class="type-list">
+    {% for code, t in REQUEST_TYPES.items() if t.cat == cat %}
+    <li><a class="type" href="/requests/new?type={{ code }}">
+      <div><b>{{ t.title }}</b><span class="muted small">{{ t.about }}</span></div>
+      <span class="type-meta">{{ t.days }} {{ plural(t.days, "день", "дня", "дней") }}{% if t.electronic %} · онлайн{% endif %}{{ icon("right") }}</span>
+    </a></li>
+    {% endfor %}
+  </ul>
+</section>
+{% endfor %}
+{% else %}
+<div class="page-h"><div><h1>{{ spec.title }}</h1><p class="muted">{{ spec.about }}</p></div></div>
+<section class="card">
+  <p class="hint hint-info">{{ icon("clock") }}<span>Срок подготовки — до {{ spec.days }} {{ plural(spec.days, "рабочего дня", "рабочих дней", "рабочих дней") }}. О каждом изменении статуса придёт уведомление.</span></p>
+  <form method="post" action="/requests/new" class="form" data-loading novalidate>
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <input type="hidden" name="type_code" value="{{ type_code }}">
+    <label class="field{% if errors.purpose %} has-error{% endif %}">
+      <span class="label">{{ spec.purpose_label }}{% if spec.purpose_required %} <i class="req-star">*</i>{% endif %}</span>
+      <input class="input" name="purpose" value="{{ form.purpose or '' }}" placeholder="{{ spec.purpose_hint }}" maxlength="300" {% if spec.purpose_required %}required{% endif %}>
+      {% if errors.purpose %}<span class="error">{{ errors.purpose }}</span>{% endif %}
+    </label>
+    {% if spec.cat == "cert" %}
+    <div class="row-2">
+      <label class="field{% if errors.copies %} has-error{% endif %}">
+        <span class="label">Экземпляров</span>
+        <select class="input" name="copies">
+          {% for n in range(1, 6) %}<option value="{{ n }}"{% if (form.copies or 1) == n %} selected{% endif %}>{{ n }}</option>{% endfor %}
+        </select>
+        {% if errors.copies %}<span class="error">{{ errors.copies }}</span>{% endif %}
+      </label>
+      <fieldset class="field">
+        <legend class="label">Как получить</legend>
+        <div class="radios">
+          {% if spec.electronic %}
+          <label class="radio"><input type="radio" name="delivery" value="electronic"{% if (form.delivery or "electronic") == "electronic" %} checked{% endif %}><span>Электронно</span></label>
+          {% endif %}
+          <label class="radio"><input type="radio" name="delivery" value="paper"{% if not spec.electronic or form.delivery == "paper" %} checked{% endif %}><span>На бумаге</span></label>
+        </div>
+      </fieldset>
+    </div>
+    {% else %}
+      <input type="hidden" name="delivery" value="paper">
+    {% endif %}
+    <label class="field{% if errors.comment %} has-error{% endif %}">
+      <span class="label">Комментарий для деканата</span>
+      <textarea class="input" name="comment" rows="3" maxlength="1000" placeholder="Необязательно: срочность, особые требования">{{ form.comment or '' }}</textarea>
+      {% if errors.comment %}<span class="error">{{ errors.comment }}</span>{% endif %}
+    </label>
+    <button class="btn btn-primary btn-block" type="submit" data-loading-text="Отправляем…">{{ icon("send") }}Отправить заявку</button>
+  </form>
+</section>
+{% endif %}
+{% endblock %}
