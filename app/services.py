@@ -5,6 +5,7 @@
 """
 from __future__ import annotations
 
+from collections import defaultdict
 from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
 
@@ -304,6 +305,28 @@ def course_overview(course: m.Course, items: list[m.Assessment]) -> dict:
                 advice=advice, next_item=upcoming[0] if upcoming else None,
                 w_earned=width_class(earned, total), w_so_far=width_class(so_far, total),
                 w_admission=width_class(ADMISSION, total))
+
+
+def retake_requests(db: Session, user: m.User, debts: list[m.PastResult]) -> dict:
+    """В старых заявках дисциплина хранится в свободном поле «Цель»."""
+    def normalized(name: str) -> str:
+        return " ".join(name.casefold().split())
+
+    debts_by_course = defaultdict(list)
+    for debt in debts:
+        debts_by_course[normalized(debt.course)].append(debt.id)
+
+    requests_by_course = defaultdict(list)
+    if debts:
+        requests = db.scalars(select(m.StudentRequest).where(
+            m.StudentRequest.student_id == user.id, m.StudentRequest.type_code == "retake",
+            m.StudentRequest.status.in_(("submitted", "in_progress", "ready", "done")),
+        ))
+        for request in requests:
+            requests_by_course[normalized(request.purpose)].append(request)
+
+    return {ids[0]: requests_by_course[course][0] for course, ids in debts_by_course.items()
+            if len(ids) == 1 and len(requests_by_course[course]) == 1}
 
 
 def grades_overview(db: Session, user: m.User) -> dict:

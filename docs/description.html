@@ -49,13 +49,14 @@
   <div class="facts">
     <div><b>Прототип</b><a href="https://dekanat-zemelor.msk1.amvera.tech">dekanat-zemelor.msk1.amvera.tech</a><br><span class="note">открывается из России без VPN, хостинг Amvera (Москва)</span></div>
     <div><b>Репозиторий</b><a href="https://github.com/zeMelor/mgimo-vibe-dekanat">github.com/zeMelor/mgimo-vibe-dekanat</a><br><span class="note">код, README, AGENTS.md, история коммитов</span></div>
-    <div><b>Тестовые аккаунты</b>студенты <code>student1</code>, <code>student2</code>, сотрудник деканата <code>dekanat</code>. Пароли — в комментарии к заявке.</div>
+    <div><b>Тестовые аккаунты</b>студенты <code>student1</code>, <code>student2</code>, сотрудник деканата <code>dekanat</code>. Логины и пароли указываются в отдельном поле заявки.</div>
     <div><b>Команда</b>Арсений Варламов (капитан), Ришат Зиннатуллин</div>
   </div>
+  <p><b>Проверить пересдачу.</b> Войдите как <code>student2</code>. В «Успеваемости» нажмите «Долги», затем «Открыть готовое направление». В карточке нажмите «Открыть».</p>
   <div class="shots">
-    <figure><img src="screenshots/v2/m1-dashboard.jpg" alt=""><figcaption>Главная: ближайшие пары, отменённый семинар с причиной</figcaption></figure>
-    <figure><img src="screenshots/v2/m3-grades.jpg" alt=""><figcaption>Успеваемость: вывод одной фразой, долг и дата пересдачи</figcaption></figure>
-    <figure><img src="screenshots/v2/m2-schedule.jpg" alt=""><figcaption>Расписание недели: числитель/знаменатель, изменения отмечены</figcaption></figure>
+    <figure><img src="screenshots/final/mobile-debt.jpg" alt=""><figcaption>Долг по теории вероятностей, дата и аудитория пересдачи</figcaption></figure>
+    <figure><img src="screenshots/final/mobile-direction.jpg" alt=""><figcaption>Направление уже готово. Студент видит историю и способ получения</figcaption></figure>
+    <figure><img src="screenshots/final/mobile-document.jpg" alt=""><figcaption>Учебный документ можно сохранить или распечатать</figcaption></figure>
   </div>
 </section>
 
@@ -84,7 +85,7 @@
   <tr><th style="width:30%">Инструмент</th><th>Зачем</th></tr>
   <tr><td><b>Claude Code</b> — агент в десктоп-приложении Claude, модель Claude Opus 5.5</td><td>Основной разработчик: план, модель данных, сервер, шаблоны, стили, демо-данные, автотесты, README, <code>AGENTS.md</code>, черновик этого описания. Сравнил хостинги: проверил доступность и прочитал документацию Amvera через веб-поиск. Работал в отдельной папке и коммитил по шагам. Пароли, регистрацию и отправку кода на хостинг оставлял человеку.</td></tr>
   <tr><td><b>Встроенный браузер Claude</b></td><td>Агент сам открывал прототип на ширине 360 px и 1280 px, в светлой и тёмной теме. Проходил сценарии (вход, заявка, выход, вход сотрудником), скриптом искал элементы шире экрана, проверял ответы 404 и 403 на чужие адреса. Отсюда же скриншоты.</td></tr>
-  <tr><td><b>pytest</b></td><td>28 сквозных автотестов: каждое изменение ИИ проверяется сразу.</td></tr>
+  <tr><td><b>pytest</b></td><td>34 проверки в итоговом локальном прогоне, включая путь от заявки до выдачи документа.</td></tr>
   <tr><td><b>Python 3.11, FastAPI, Jinja2, SQLAlchemy, bcrypt</b></td><td>Стек прототипа, все библиотеки под лицензиями MIT, BSD или Apache. Страницы рендерятся на сервере: права проверяются в одном месте, секретов в браузере нет.</td></tr>
   <tr><td><b>Git</b></td><td>История версий и деплой (<code>git push</code> на хостинг).</td></tr>
   <tr><td><b>Amvera</b> (amvera.ru)</td><td>Российский хостинг: открывается без VPN, деплой через git, бесплатный HTTPS-домен, постоянный диск для базы. Работает на стартовом бонусе, команда ничего не платила.</td></tr>
@@ -158,10 +159,11 @@
   <tr><td>10</td><td>Первым предложил платный тариф хостинга, хотя бонус Amvera покрывает весь срок конкурса.</td><td>Вопрос человека</td><td>Пересчитал: бонус 111 ₽ при 0,40 ₽ в час хватает примерно на 11 дней, это после 28 ноября.</td></tr>
 </table>
 <p>Логические ошибки (1–2) поймали автотесты, которые агент написал сам по критериям из промпта. Ошибки «человеческого» качества (3–9, 11: падежи, типографика, противоречия между экранами, вёрстка) нашлись только при просмотре на реальной ширине. Отсюда правило работы: каждый шаг — тест плюс просмотр. Ошибки 10 и 12 поймал человек.</p>
-<div class="shots">
+<div class="shots four">
   <figure><img src="screenshots/process/02-dashboard-bug-capitalize.jpg" alt=""><figcaption>До: «22 Ноября», «Неделя: Числитель» (ошибки 3–4)</figcaption></figure>
   <figure><img src="screenshots/process/05-grades-bug-anchors-grammar.jpg" alt=""><figcaption>До: падеж, «4.62», обрезанная кнопка (5, 6, 8)</figcaption></figure>
-  <figure><img src="screenshots/process/15-redesign-bug-overflow.jpg" alt=""><figcaption>После редизайна: кнопка вылезла за край (9)</figcaption></figure>
+  <figure><img src="screenshots/process/15-redesign-bug-overflow.jpg" alt=""><figcaption>До: у «Прочитать все» обрезан правый край. В журнале зафиксировано 374 px при окне 360 px</figcaption></figure>
+  <figure><img src="screenshots/final/mobile-notifications.jpg" alt=""><figcaption>Повторная проверка в Chrome через Playwright: экран и содержимое по 360 px. Правый край кнопки на отметке 344 px</figcaption></figure>
 </div>
 
 <h2>6. Вход, хранение данных и защита — простыми словами</h2>
@@ -190,9 +192,9 @@
   <li>Отправка работы в кабинете конкурса — капитан команды.</li>
 </ul>
 
-<h2 class="pb">8. Готовый кабинет</h2>
+<h2>8. Готовый кабинет</h2>
 <div class="shots two">
-  <figure><img src="screenshots/v2/d1-dashboard.jpg" alt=""><figcaption>Главная на компьютере: приветствие, пары, «как у меня дела», дедлайны</figcaption></figure>
+  <figure><img src="screenshots/final/desktop-dashboard.jpg" alt=""><figcaption>Главная на компьютере: приветствие, пары, «как у меня дела», дедлайны</figcaption></figure>
   <figure><img src="screenshots/v2/d2-dashboard-dark.jpg" alt=""><figcaption>Тёмная тема на компьютере — по кнопке в меню</figcaption></figure>
 </div>
 <div class="shots two">

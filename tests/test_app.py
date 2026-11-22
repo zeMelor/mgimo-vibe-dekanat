@@ -245,3 +245,40 @@ def test_font_served_with_font_type():
         r = c.get("/static/fonts/open-sans-cyrillic-wdth-normal.woff2")
         assert r.status_code == 200 and r.headers["content-type"] == "font/woff2"
         assert r.content[:4] == b"wOF2"
+
+
+@pytest.mark.parametrize("day,default_label", [(22, "следующая неделя"), (23, "текущая неделя")])
+def test_schedule_calendar_week(s2, monkeypatch, day, default_label):
+    from datetime import date
+    from app import services
+
+    monkeypatch.setattr(services, "today", lambda: date(2026, 11, day))
+    html = s2.get("/schedule").text
+    assert default_label + "</span>" in html
+    if day == 22:
+        assert 'href="/schedule?week=2026-11-16">к текущей неделе' in html
+        assert "текущая неделя</span>" in s2.get("/schedule?week=2026-11-16").text
+
+
+def test_retake_link_requires_unique_own_match(s2):
+    from sqlalchemy import select
+    from app import models as m, services
+    from app.db import SessionLocal
+
+    with SessionLocal() as db:
+        user = db.scalar(select(m.User).where(m.User.login == "student2"))
+        debt, = services.grades_overview(db, user)["debts"]
+        existing = services.retake_requests(db, user, [debt])[debt.id]
+        assert f'href="/requests/{existing.id}">Открыть готовое направление' in s2.get("/grades").text
+        other = db.scalar(select(m.User).where(m.User.login == "student1"))
+        duplicate = m.StudentRequest(student_id=other.id, type_code="retake", purpose=debt.course,
+                                     title=existing.title, status="ready", created_at=existing.created_at,
+                                     updated_at=existing.updated_at)
+        db.add(duplicate)
+        assert services.retake_requests(db, user, [debt]) == {debt.id: existing}
+        duplicate.student_id = user.id
+        assert not services.retake_requests(db, user, [debt])
+        duplicate.purpose = "Другая дисциплина"
+        assert services.retake_requests(db, user, [debt]) == {debt.id: existing}
+        existing.status = "cancelled"
+        assert not services.retake_requests(db, user, [debt])

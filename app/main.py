@@ -281,7 +281,8 @@ def schedule(request: Request, week: date | None = None, view: str = "week",
         raise HTTPException(status_code=400)
     view = "today" if view == "today" else "week"
     ctx = dict(view=view, monday=monday, prev_week=monday - timedelta(days=7),
-               next_week=monday + timedelta(days=7), this_week=svc.default_week(t),
+               next_week=monday + timedelta(days=7), this_week=svc.week_start(t),
+               following_week=svc.week_start(t) + timedelta(days=7),
                week_parity=svc.parity(monday))
     if view == "today":
         lessons = svc.build_day(db, user.group_id, t)
@@ -332,7 +333,9 @@ def schedule_ics(user: m.User = Depends(student), db: Session = Depends(get_db))
 
 @app.get("/grades")
 def grades(request: Request, user: m.User = Depends(student), db: Session = Depends(get_db)):
-    return render(request, "grades.html", db, grades=svc.grades_overview(db, user),
+    overview = svc.grades_overview(db, user)
+    return render(request, "grades.html", db, grades=overview,
+                  retakes=svc.retake_requests(db, user, overview["debts"]),
                   exams=svc.session_exams(db, user))
 
 

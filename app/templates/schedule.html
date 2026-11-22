@@ -36,7 +36,10 @@
     <a class="icon-btn" href="/schedule?week={{ prev_week }}" aria-label="Предыдущая неделя">{{ icon("left") }}</a>
     <div class="week-title">
       <b>{{ monday|ru_date }} — {{ days[-1].date|ru_date }}</b>
-      {% if monday != this_week %}<a class="link small" href="/schedule">к текущей неделе</a>{% else %}<span class="muted small">текущая неделя</span>{% endif %}
+      {% if monday == this_week %}<span class="muted small">текущая неделя</span>{% else %}
+        {% if monday == following_week %}<span class="muted small">следующая неделя</span>{% endif %}
+        <a class="link small" href="/schedule?week={{ this_week }}">к текущей неделе</a>
+      {% endif %}
     </div>
     <a class="icon-btn" href="/schedule?week={{ next_week }}" aria-label="Следующая неделя">{{ icon("right") }}</a>
   </div>
@@ -50,7 +53,7 @@
   </nav>
 
   {% if total_changes %}
-  <div class="alert alert-warn">{{ icon("alert") }}<span>На этой неделе {{ total_changes }} {{ plural(total_changes, "изменение", "изменения", "изменений") }}: они отмечены цветом.</span></div>
+  <div class="alert alert-warn">{{ icon("alert") }}<span>За выбранную неделю {{ total_changes }} {{ plural(total_changes, "изменение", "изменения", "изменений") }}: они отмечены цветом.</span></div>
   {% endif %}
 
   {% for d in days %}

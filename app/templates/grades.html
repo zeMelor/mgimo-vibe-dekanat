@@ -31,10 +31,15 @@
     <li>
       <div><b>{{ r.course }}</b><p class="muted small">{{ r.semester }} семестр · {{ CONTROL_LABEL[r.control] }} · {{ r.grade }}{% if r.points %} ({{ r.points }} б.){% endif %}</p></div>
       {% if r.retake_at %}<div class="debt-when"><b>Пересдача {{ r.retake_at|ru_date(weekday=True, short=True) }}, {{ "%02d:%02d"|format(r.retake_at.hour, r.retake_at.minute) }}</b><span class="muted small">{{ r.retake_room }} · {{ r.retake_at|rel_day }}</span></div>{% endif %}
+      {% set direction = retakes.get(r.id) %}
+      {% if direction %}
+      <a class="link" href="/requests/{{ direction.id }}">{{ "Открыть готовое направление" if direction.delivery == "electronic" and direction.status in ["ready", "done"] else "Посмотреть заявку" }}</a>
+      {% else %}
+      <a class="link" href="/requests/new?type=retake">Заказать направление</a>
+      {% endif %}
     </li>
     {% endfor %}
   </ul>
-  <p class="sub">Для пересдачи нужно направление из деканата. <a class="link" href="/requests/new?type=retake">Заказать направление</a></p>
 </section>
 {% endif %}
 
