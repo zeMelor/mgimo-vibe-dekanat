@@ -1,7 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="Цифровой деканат">
-  <rect width="48" height="48" rx="13" fill="#3550dc"/>
-  <path d="M12 19 24 12l12 7-12 7z" fill="#fff"/>
-  <path d="M17 22.5v6.5c0 2.2 3.1 4 7 4s7-1.8 7-4v-6.5l-7 4z" fill="#fff" opacity=".75"/>
-  <circle cx="36" cy="31" r="5.5" fill="#ffb648" stroke="#3550dc" stroke-width="2"/>
-  <path d="m33.6 31 1.6 1.6 3.2-3.2" fill="none" stroke="#3550dc" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect width="48" height="48" rx="8" fill="#13306b"/>
+  <rect x="3.5" y="3.5" width="41" height="41" rx="5.5" fill="none" stroke="#c9a45c" stroke-width="1" opacity=".7"/>
+  <path d="M10 20 24 13l14 7-14 7z" fill="#f6f1e6"/>
+  <path d="M16 23.6v6.2c0 2.3 3.6 4.2 8 4.2s8-1.9 8-4.2v-6.2l-8 4z" fill="#f6f1e6" opacity=".82"/>
+  <path d="M36 21v8.5" stroke="#c9a45c" stroke-width="1.8" stroke-linecap="round"/>
+  <circle cx="36" cy="31" r="2" fill="#c9a45c"/>
 </svg>
