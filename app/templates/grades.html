@@ -38,31 +38,27 @@
 </section>
 {% endif %}
 
-<section id="current">
-  <h2 class="section-title">Текущий семестр <span class="muted small">баллы текущего контроля, максимум {{ SEMESTER_MAX }}, допуск от {{ ADMISSION }}</span></h2>
+<section class="card gradebook" id="current">
+  <div class="card-h">
+    <h2>{{ icon("chart") }}Текущий семестр</h2>
+    <span class="muted small">максимум {{ SEMESTER_MAX }} · допуск от {{ ADMISSION }}</span>
+  </div>
   {% if grades.rows %}
-  <div class="course-list">
+  <div class="gb-head" aria-hidden="true"><span>Дисциплина</span><span>Набрано и допуск</span><span class="gb-r">Баллы</span><span>Статус</span><span></span></div>
+  <div class="gb-list">
     {% for r in grades.rows %}
-    <details class="card course course-{{ r.status }}">
+    <details class="gb-row gb-{{ r.status }}">
       <summary>
-        <div class="course-top">
-          <div class="course-name"><h3>{{ r.course.name }}</h3><p class="muted small">{{ CONTROL_LABEL[r.course.control] }} · {{ r.course.teacher }}</p></div>
-          <div class="course-score"><b>{{ r.earned }}</b><span>/ {{ r.total }}</span></div>
+        <div class="gb-name"><b>{{ r.course.name }}</b><span>{{ CONTROL_LABEL[r.course.control] }} · {{ r.course.teacher }}</span></div>
+        <div class="gb-bar" aria-label="Набрано {{ r.earned }} из {{ r.total }}, допуск от {{ ADMISSION }}">
+          <span class="gb-sofar {{ r.w_so_far }}"></span><span class="gb-fill {{ r.w_earned }}"></span><span class="gb-mark {{ r.w_admission }}" title="Порог допуска"></span>
         </div>
-        <div class="bar" aria-label="Набрано {{ r.earned }} из {{ r.total }}">
-          <span class="bar-sofar {{ r.w_so_far }}"></span>
-          <span class="bar-fill {{ r.w_earned }}"></span>
-          <span class="bar-mark {{ r.w_admission }}" title="Порог допуска"></span>
-        </div>
-        <div class="course-bottom">
-          {% set tone = {"good": "good", "ok": "info", "risk": "warn", "critical": "bad", "none": "neutral"}[r.status] %}
-          {{ badge(r.label, tone) }}
-          {% if r.next_item %}<span class="muted small">Дальше: {{ r.next_item.title }} — {{ r.next_item.due|rel_day }}</span>{% endif %}
-          <span class="course-more">Подробнее</span>
-        </div>
+        <div class="gb-score"><b>{{ r.earned }}</b><span>из {{ r.total }}</span></div>
+        <div class="gb-status"><i></i>{{ r.label }}</div>
+        <span class="gb-chev">{{ icon("right") }}</span>
       </summary>
-      <div class="course-details">
-        <p class="advice">{{ r.advice }}</p>
+      <div class="gb-details">
+        <p class="gb-advice">{{ r.advice }}{% if r.next_item %} Ближайшая точка — «{{ r.next_item.title }}», {{ r.next_item.due|rel_day }}.{% endif %}</p>
         <ul class="kt-list">
           {% for a in r.kts %}
           <li><span>{{ a.title }}{% if a.points is none and a.due %} <span class="muted small">· до {{ a.due|ru_date }}</span>{% endif %}</span>
@@ -74,7 +70,7 @@
     {% endfor %}
   </div>
   {% else %}
-    <div class="card">{{ empty("chart", "Оценок пока нет", "Они появятся после первых контрольных точек.") }}</div>
+    {{ empty("chart", "Оценок пока нет", "Они появятся после первых контрольных точек.") }}
   {% endif %}
 </section>
 

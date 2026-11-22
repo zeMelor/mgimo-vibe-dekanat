@@ -4,9 +4,9 @@
 // их всегда отдаёт сервер, который проверяет вход и права.
 "use strict";
 
-const CACHE = "dekanat-static-v5";
+const CACHE = "dekanat-static-v6";
 const ASSETS = [
-  "/static/style.css?v=5",
+  "/static/style.css?v=6",
   "/static/app.js?v=4",
   "/static/logo.svg",
   "/static/icon-192.png",

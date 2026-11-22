@@ -155,6 +155,17 @@ body.is-loading .loadbar { width: 85%; transition: width 3s cubic-bezier(.1, .7,
     padding: 22px 14px; background: linear-gradient(180deg, var(--nav-bg), color-mix(in srgb, var(--nav-bg) 85%, #0b1f4d)); color: var(--nav-ink);
   }
   .sidebar .brand { padding: 0 8px 18px; border-bottom: 1px solid color-mix(in srgb, var(--nav-ink) 18%, transparent); }
+  /* в светлой теме меню белое: тёмно-синий текст, активный пункт — бледно-голубой с золотой отметкой */
+  :root:not([data-theme="dark"]) .sidebar { background: var(--surface); color: var(--text); border-right: 1px solid var(--line); box-shadow: 1px 0 0 rgba(21, 32, 54, .02); }
+  :root:not([data-theme="dark"]) .sidebar .brand { border-bottom-color: var(--line); }
+  :root:not([data-theme="dark"]) .sidebar .brand b { color: var(--primary); }
+  :root:not([data-theme="dark"]) .sidebar .brand small { color: var(--muted); opacity: 1; }
+  :root:not([data-theme="dark"]) .side-link { color: var(--muted); }
+  :root:not([data-theme="dark"]) .side-link:hover { background: var(--surface-2); color: var(--text); }
+  :root:not([data-theme="dark"]) .side-link.is-active { background: var(--primary-soft); color: var(--primary); font-weight: 600; }
+  :root:not([data-theme="dark"]) .side-user { border-top-color: var(--line); }
+  :root:not([data-theme="dark"]) .side-user:hover, :root:not([data-theme="dark"]) .side-user.is-active { background: var(--surface-2); }
+  :root:not([data-theme="dark"]) .side-user-text small { color: var(--muted); opacity: 1; }
   .side-nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
   .side-link {
     position: relative; display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 6px;
@@ -459,6 +470,52 @@ textarea.input { resize: vertical; min-height: 90px; }
 .sem:first-of-type { border-top: 0; }
 .sem summary { cursor: pointer; padding: 10px 0; display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
 .sem summary b { font-family: var(--serif); }
+
+/* ведомость текущего семестра: строки вместо сетки карточек */
+.gradebook { gap: 0; }
+.gradebook .card-h { margin-bottom: 4px; flex-wrap: wrap; }
+.gb-head { display: none; }
+.gb-row { border-bottom: 1px solid var(--line); }
+.gb-row:last-child { border-bottom: 0; }
+.gb-row summary {
+  list-style: none; cursor: pointer; display: grid; gap: 8px 14px; padding: 14px 0; align-items: center;
+  grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "name score" "bar bar" "status chev";
+}
+.gb-row summary::-webkit-details-marker { display: none; }
+.gb-row summary:hover .gb-name b { color: var(--primary); }
+.gb-name { grid-area: name; display: flex; flex-direction: column; min-width: 0; }
+.gb-name b { font-family: var(--serif); font-size: 16px; line-height: 1.3; overflow-wrap: anywhere; }
+.gb-name span { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+.gb-bar { grid-area: bar; position: relative; height: 5px; border-radius: 3px; background: var(--neutral-soft); }
+.gb-sofar, .gb-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; }
+.gb-sofar { background: color-mix(in srgb, var(--primary) 14%, transparent); }
+.gb-fill { background: var(--primary); }
+.gb-mark { position: absolute; top: -5px; bottom: -5px; border-right: 2px solid var(--accent); }
+.gb-score { grid-area: score; text-align: right; white-space: nowrap; line-height: 1; font-variant-numeric: lining-nums tabular-nums; }
+.gb-score b { font-family: var(--serif); font-size: 26px; font-weight: 700; }
+.gb-score span { display: block; color: var(--muted); font-size: 11.5px; margin-top: 3px; }
+.gb-status { grid-area: status; display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.gb-status i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: none; }
+.gb-chev { grid-area: chev; justify-self: end; color: var(--muted); transition: transform .15s; }
+.gb-chev .ic { width: 18px; height: 18px; }
+.gb-row[open] .gb-chev { transform: rotate(90deg); }
+.gb-good .gb-status { color: var(--good); } .gb-good .gb-fill { background: var(--good); }
+.gb-ok .gb-status { color: var(--info); }
+.gb-risk .gb-status { color: var(--warn); } .gb-risk .gb-fill { background: var(--warn); }
+.gb-critical .gb-status { color: var(--bad); } .gb-critical .gb-fill { background: var(--bad); }
+.gb-details { padding: 0 0 14px; display: flex; flex-direction: column; gap: 8px; }
+.gb-advice { font-size: 14px; color: var(--text); background: var(--surface-2); border-radius: 6px; padding: 10px 12px; }
+@media (min-width: 760px) {
+  .gb-head {
+    display: grid; grid-template-columns: minmax(220px, 2.2fr) minmax(150px, 1.6fr) 70px 140px 20px; gap: 18px;
+    padding: 6px 0 8px; border-bottom: 1px solid var(--line-strong); color: var(--muted); font-size: 11px;
+    font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  }
+  .gb-r { text-align: right; }
+  .gb-row summary { grid-template-columns: minmax(220px, 2.2fr) minmax(150px, 1.6fr) 70px 140px 20px; grid-template-areas: "name bar score status chev"; gap: 18px; padding: 15px 0; }
+  .gb-score b { font-size: 24px; }
+  .gb-details { padding: 0 0 16px; max-width: 760px; }
+}
 
 /* ---------- дедлайны, сессия ---------- */
 .dl-list, .exam-list { display: flex; flex-direction: column; }
