@@ -386,3 +386,10 @@ def test_lesson_countdown(monkeypatch):
     starts_in = (datetime.strptime(nxt["start"], "%H:%M") - datetime.strptime("10:00", "%H:%M")).seconds // 60
     assert now["pair"] == 1 and now["mins"] == 20
     assert nxt["mins"] == starts_in and nxt["status"] not in ("cancelled", "moved_out")
+
+
+def test_whatsnew_and_session_countdown(s1, staff):
+    home = s1.get("/").text
+    assert 'data-whatsnew="1"' in home and "Новое в кабинете" in home
+    assert 'href="/grades#current"' in home and 'href="/requests"' in home
+    assert "7 испытаний · первое через" in s1.get("/grades").text  # 9 строк сессии, из них 2 консультации

@@ -672,6 +672,23 @@ textarea.input { resize: vertical; min-height: 90px; }
 .doc-qr p { min-width: 0; }
 .doc-qr-url { font-family: Consolas, "Courier New", monospace; font-size: 11px; color: #444; overflow-wrap: anywhere; }
 
+#session .card-h { flex-wrap: wrap; }
+
+/* карточка «Новое в кабинете» на главной */
+.whatsnew .card-h { padding-bottom: 8px; }
+.whatsnew-x { width: 32px; height: 32px; }
+.whatsnew-x .ic { width: 16px; height: 16px; }
+.whatsnew-list { display: flex; flex-direction: column; }
+.whatsnew-list li + li { border-top: 1px solid var(--line); }
+.whatsnew-list a { display: flex; flex-direction: column; gap: 2px; padding: 10px 0; color: inherit; }
+.whatsnew-list a:hover b { color: var(--primary); }
+.whatsnew-list b { font-weight: 600; font-size: 14.5px; }
+.whatsnew-list span { color: var(--muted); font-size: 13px; line-height: 1.4; }
+@media (min-width: 960px) {
+  .whatsnew-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0 24px; }
+  .whatsnew-list li + li { border-top: 0; border-left: 1px solid var(--line); padding-left: 24px; }
+}
+
 /* публичная проверка справки по QR-коду */
 .check-list { display: flex; flex-direction: column; border-top: 1px solid var(--line); }
 .check-list div { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 14px; }

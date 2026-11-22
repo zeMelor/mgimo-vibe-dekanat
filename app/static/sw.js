@@ -4,12 +4,12 @@
 // их всегда отдаёт сервер, который проверяет вход и права.
 "use strict";
 
-const CACHE = "dekanat-static-v10";
+const CACHE = "dekanat-static-v11";
 const ASSETS = [
-  "/static/style.css?v=10",
+  "/static/style.css?v=11",
   "/static/fonts/open-sans-cyrillic-wdth-normal.woff2",
   "/static/fonts/open-sans-latin-wdth-normal.woff2",
-  "/static/app.js?v=5",
+  "/static/app.js?v=6",
   "/static/logo.svg",
   "/static/icon-192.png",
   "/static/offline.html",

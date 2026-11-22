@@ -129,6 +129,20 @@
     render();
   });
 
+  // Карточка «Новое в кабинете»: видна, пока студент её не скроет. Выбор хранится только в этом браузере.
+  var news = document.querySelector("[data-whatsnew]");
+  if (news) {
+    var newsKey = "dk-whatsnew-" + news.getAttribute("data-whatsnew");
+    var dismissed = false;
+    try { dismissed = window.localStorage.getItem(newsKey) === "1"; } catch (err) { /* приватный режим */ }
+    if (!dismissed) news.hidden = false;
+    var newsClose = news.querySelector("[data-whatsnew-close]");
+    if (newsClose) newsClose.addEventListener("click", function () {
+      news.hidden = true;
+      try { window.localStorage.setItem(newsKey, "1"); } catch (err) { /* не страшно: просто покажем снова */ }
+    });
+  }
+
   // Кнопка печати электронной справки
   document.addEventListener("click", function (e) {
     if (e.target.closest && e.target.closest("[data-print]")) window.print();

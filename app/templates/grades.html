@@ -97,7 +97,7 @@
 </section>
 
 <section class="card" id="session">
-  <div class="card-h"><h2>{{ icon("calendar") }}Расписание сессии</h2></div>
+  <div class="card-h"><h2>{{ icon("calendar") }}Расписание сессии</h2>{% set real_exams = exams|rejectattr("kind", "equalto", "consult")|list %}{% if real_exams %}<span class="muted small">{{ real_exams|length }} {{ plural(real_exams|length, "испытание", "испытания", "испытаний") }} · первое {{ real_exams[0].at|rel_day }}</span>{% endif %}</div>
   {% if exams %}
   <ul class="exam-list">
     {% for e in exams %}

@@ -17,6 +17,18 @@
 </section>
 {% endif %}
 
+<section class="card whatsnew" data-whatsnew="1" aria-label="Новое в кабинете" hidden>
+  <div class="card-h">
+    <h2>{{ icon("spark") }}Новое в кабинете</h2>
+    <button class="icon-btn whatsnew-x" type="button" data-whatsnew-close aria-label="Скрыть подсказку">{{ icon("x") }}</button>
+  </div>
+  <ul class="whatsnew-list">
+    <li><a href="/grades#current"><b>«Что если» в оценках</b><span>Откройте дисциплину и подвигайте ползунок: увидите итог семестра и допуск.</span></a></li>
+    <li><a href="/requests"><b>QR-код на справках</b><span>По нему подлинность справки проверит кто угодно, без входа в кабинет.</span></a></li>
+    <li><a href="/schedule?view=today"><b>Отсчёт до пары</b><span>«Идёт · ещё 20 мин» и «через 30 мин» на главной и в расписании.</span></a></li>
+  </ul>
+</section>
+
 <div class="grid-dash">
   {# ---------- Пары ---------- #}
   <section class="card span-2 dash-lessons">
