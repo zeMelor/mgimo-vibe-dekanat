@@ -35,8 +35,9 @@
   ("/profile", "user", "Профиль")
 ] %}
 {% set nav = nav_staff if user.role == "staff" else nav_student %}
-{% macro is_active(href) -%}
-{%- if (href == "/" and path == "/") or (href != "/" and (path == href or path.startswith(href ~ "/"))) and not (href == "/staff" and path.startswith("/staff/news")) %} is-active{% endif -%}
+{% macro nav_attrs(href, link_class) -%}
+{%- set active = (href == "/" and path == "/") or (href != "/" and (path == href or path.startswith(href ~ "/"))) and not (href == "/staff" and path.startswith("/staff/news")) -%}
+class="{{ link_class }}{% if active %} is-active{% endif %}"{% if active %} aria-current="{{ 'page' if path == href else 'location' }}"{% endif -%}
 {%- endmacro %}
 <div class="app">
   <aside class="sidebar">
@@ -46,7 +47,7 @@
     </a>
     <nav class="side-nav" aria-label="Разделы">
       {% for href, ic, label in nav %}
-      <a class="side-link{{ is_active(href) }}" href="{{ href }}">{{ icon(ic) }}<span>{{ label }}</span>
+      <a {{ nav_attrs(href, "side-link") }} href="{{ href }}">{{ icon(ic) }}<span>{{ label }}</span>
         {% if href == "/notifications" and unread %}<span class="count">{{ unread }}</span>{% endif %}</a>
       {% endfor %}
     </nav>
@@ -76,7 +77,7 @@
 </div>
 <nav class="tabbar" aria-label="Разделы">
   {% for href, ic, label in nav %}
-  <a class="tab{{ is_active(href) }}" href="{{ href }}">
+  <a {{ nav_attrs(href, "tab") }} href="{{ href }}">
     <span class="tab-ic">{{ icon(ic) }}{% if href == "/notifications" and unread %}<span class="dot">{{ unread if unread < 10 else "9+" }}</span>{% endif %}</span>
     <span class="tab-label">{{ label }}</span>
   </a>
