@@ -5,31 +5,34 @@
 <title>Цифровой деканат — описание конкурсной работы</title>
 <style>
   @page { size: A4; margin: 16mm 15mm 16mm 15mm; }
-  :root { --ink: #161a2b; --muted: #5b6275; --line: #dfe3ec; --accent: #3a4fd8; --soft: #f3f5fb; --bad: #c0392b; --good: #1e8e5a; }
+  :root { --ink: #1b2333; --muted: #5f6673; --line: #e3ddd1; --navy: #13306b; --gold: #a27b35; --soft: #f6f2ea; --bad: #9a2b2b; }
   * { box-sizing: border-box; }
   body { font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif; color: var(--ink); font-size: 10.5pt; line-height: 1.5; margin: 0; background: #fff; }
-  h1 { font-size: 24pt; line-height: 1.15; margin: 0 0 4pt; }
-  h2 { font-size: 15pt; margin: 18pt 0 6pt; padding-top: 4pt; border-top: 2px solid var(--accent); break-after: avoid; }
+  h1, h2, h3 { font-family: Georgia, "PT Serif", "Times New Roman", serif; }
+  h1 { font-size: 25pt; line-height: 1.15; margin: 0 0 4pt; color: var(--navy); }
+  h2 { font-size: 15pt; margin: 18pt 0 6pt; padding-top: 5pt; border-top: 2px solid var(--gold); break-after: avoid; color: var(--navy); }
   h3 { font-size: 11.5pt; margin: 12pt 0 4pt; break-after: avoid; }
   p { margin: 0 0 6pt; }
   ul { margin: 0 0 6pt; padding-left: 16pt; }
   li { margin-bottom: 2pt; }
+  a { color: var(--navy); }
   code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 9pt; background: var(--soft); padding: 0 3px; border-radius: 3px; }
   table { width: 100%; border-collapse: collapse; margin: 4pt 0 8pt; font-size: 9.5pt; break-inside: auto; }
   th, td { text-align: left; vertical-align: top; padding: 4pt 6pt; border-bottom: 1px solid var(--line); }
   th { background: var(--soft); font-weight: 600; }
   tr { break-inside: avoid; }
-  blockquote { margin: 4pt 0 8pt; padding: 6pt 10pt; background: var(--soft); border-left: 3px solid var(--accent); color: #2b3150; font-size: 9.5pt; }
+  blockquote { margin: 4pt 0 8pt; padding: 6pt 10pt; background: var(--soft); border-left: 3px solid var(--gold); color: #2b3150; font-size: 9.5pt; }
   .muted { color: var(--muted); }
-  .badge { display: inline-block; font-size: 8.5pt; font-weight: 600; padding: 1pt 6pt; border-radius: 99px; background: #fff3d6; color: #8a5a00; }
-  .cover { padding: 6pt 0 4pt; }
-  .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 6pt 14pt; margin: 10pt 0; padding: 10pt 12pt; border: 1px solid var(--line); border-radius: 8px; background: var(--soft); }
-  .facts b { display: block; font-size: 8.5pt; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+  .badge { display: inline-block; font-size: 8pt; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 1pt 6pt; border-radius: 3px; border: 1px solid var(--gold); color: var(--gold); }
+  .cover { padding: 4pt 0 4pt; }
+  .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 6pt 14pt; margin: 10pt 0; padding: 10pt 12pt; border: 1px solid var(--line); border-top: 3px solid var(--navy); border-radius: 4px; background: var(--soft); }
+  .facts b { display: block; font-size: 8pt; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
   .shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8pt; margin: 6pt 0 10pt; break-inside: avoid; }
+  .shots.four { grid-template-columns: repeat(4, 1fr); }
   .shots.two { grid-template-columns: 1fr 1fr; }
   .shots.one { grid-template-columns: 1fr; }
   figure { margin: 0; break-inside: avoid; }
-  figure img { width: 100%; display: block; border: 1px solid var(--line); border-radius: 6px; }
+  figure img { width: 100%; display: block; border: 1px solid var(--line); border-radius: 4px; }
   figcaption { font-size: 8.5pt; color: var(--muted); margin-top: 3pt; line-height: 1.3; }
   .pb { break-before: page; }
   .note { font-size: 9pt; color: var(--muted); }
@@ -42,15 +45,15 @@
   <h1>Цифровой деканат — личный кабинет студента</h1>
   <p class="muted">Концепт для конкурса, не официальный сервис вуза. Все люди, оценки и заявки вымышлены.</p>
   <div class="facts">
-    <div><b>Прототип</b><span id="url">PROTOTYPE_URL</span></div>
+    <div><b>Прототип</b><a href="https://dekanat-zemelor.msk1.amvera.tech">dekanat-zemelor.msk1.amvera.tech</a><br><span class="note">открывается из России без VPN, хостинг Amvera (Москва)</span></div>
     <div><b>Репозиторий</b><span>REPO_URL</span></div>
     <div><b>Тестовые аккаунты</b>студенты <code>student1</code>, <code>student2</code>, сотрудник деканата <code>dekanat</code>. Пароли — в комментарии к заявке.</div>
     <div><b>Команда</b>Арсений Варламов (капитан), Ришат Зиннатуллин</div>
   </div>
   <div class="shots">
-    <figure><img src="screenshots/final/m1-dashboard.jpg" alt=""><figcaption>Главная: ближайшие пары, отменённый семинар с причиной</figcaption></figure>
-    <figure><img src="screenshots/final/m3-grades.jpg" alt=""><figcaption>Успеваемость: вывод одной фразой, долг и дата пересдачи</figcaption></figure>
-    <figure><img src="screenshots/final/m2-schedule.jpg" alt=""><figcaption>Расписание недели: числитель/знаменатель, изменения отмечены</figcaption></figure>
+    <figure><img src="screenshots/v2/m1-dashboard.jpg" alt=""><figcaption>Главная: ближайшие пары, отменённый семинар с причиной</figcaption></figure>
+    <figure><img src="screenshots/v2/m3-grades.jpg" alt=""><figcaption>Успеваемость: вывод одной фразой, долг и дата пересдачи</figcaption></figure>
+    <figure><img src="screenshots/v2/m2-schedule.jpg" alt=""><figcaption>Расписание недели: числитель/знаменатель, изменения отмечены</figcaption></figure>
   </div>
 </section>
 
@@ -68,24 +71,25 @@
 <p>Для деканата сделан второй кабинет: очередь заявок с поиском, смена статуса (студенту сразу приходит уведомление; отказать без причины нельзя) и рассылка новостей группе или всем. Без него статусы заявок были бы декорацией.</p>
 
 <div class="shots">
-  <figure><img src="screenshots/process/08-requests.jpg" alt=""><figcaption>Заявки: частые справки в один тап, активные и архив</figcaption></figure>
-  <figure><img src="screenshots/final/m5-notifications.jpg" alt=""><figcaption>Уведомления: дедлайны, пересдача, новости</figcaption></figure>
-  <figure><img src="screenshots/process/13-profile.jpg" alt=""><figcaption>Профиль: факультет, направление, курс, группа</figcaption></figure>
+  <figure><img src="screenshots/v2/m4-requests.jpg" alt=""><figcaption>Заявки: частые справки в один тап, активные и архив</figcaption></figure>
+  <figure><img src="screenshots/v2/m5-notifications.jpg" alt=""><figcaption>Уведомления: дедлайны, пересдача, новости</figcaption></figure>
+  <figure><img src="screenshots/v2/m6-dashboard-dark.jpg" alt=""><figcaption>Тёмная тема включается по настройке телефона</figcaption></figure>
 </div>
 
 <h2 class="pb">2. ИИ-инструменты, IDE и сервисы</h2>
 <table>
   <tr><th style="width:30%">Инструмент</th><th>Зачем</th></tr>
-  <tr><td><b>Claude Code</b> — агент в десктоп-приложении Claude, модель Claude Opus 5.5</td><td>Основной разработчик: план, модель данных, сервер, шаблоны, стили, демо-данные, автотесты, README, <code>AGENTS.md</code>, черновик этого описания. Работал в отдельной папке и коммитил по шагам. Пароли, регистрацию и отправку кода на хостинг оставлял человеку.</td></tr>
+  <tr><td><b>Claude Code</b> — агент в десктоп-приложении Claude, модель Claude Opus 5.5</td><td>Основной разработчик: план, модель данных, сервер, шаблоны, стили, демо-данные, автотесты, README, <code>AGENTS.md</code>, черновик этого описания. Сравнил хостинги: проверил доступность и прочитал документацию Amvera через веб-поиск. Работал в отдельной папке и коммитил по шагам. Пароли, регистрацию и отправку кода на хостинг оставлял человеку.</td></tr>
   <tr><td><b>Встроенный браузер Claude</b></td><td>Агент сам открывал прототип на ширине 360 px и 1280 px, в светлой и тёмной теме. Проходил сценарии (вход, заявка, выход, вход сотрудником), скриптом искал элементы шире экрана, проверял ответы 404 и 403 на чужие адреса. Отсюда же скриншоты.</td></tr>
   <tr><td><b>pytest</b></td><td>28 сквозных автотестов: каждое изменение ИИ проверяется сразу.</td></tr>
   <tr><td><b>Python 3.11, FastAPI, Jinja2, SQLAlchemy, bcrypt</b></td><td>Стек прототипа, все библиотеки под лицензиями MIT, BSD или Apache. Страницы рендерятся на сервере: права проверяются в одном месте, секретов в браузере нет.</td></tr>
   <tr><td><b>Git</b></td><td>История версий и деплой (<code>git push</code> на хостинг).</td></tr>
-  <tr><td><b>Amvera</b> (amvera.ru)</td><td>Российский хостинг: открывается без VPN, деплой через git, бесплатный HTTPS-домен, постоянный диск для базы.</td></tr>
+  <tr><td><b>Amvera</b> (amvera.ru)</td><td>Российский хостинг: открывается без VPN, деплой через git, бесплатный HTTPS-домен, постоянный диск для базы. Работает на стартовом бонусе, команда ничего не платила.</td></tr>
   <tr><td><b>Microsoft Edge</b></td><td>Печать этого описания из HTML в PDF.</td></tr>
 </table>
 
 <h2>3. Ключевые промпты и диалог с ИИ по этапам</h2>
+<p class="note">Промпты приведены близко к оригиналу: сокращены и поправлены опечатки и разговорные слова.</p>
 <h3>Этап 0. Постановка задачи: критерии приёмки прямо в промпте</h3>
 <blockquote>Сделай за сегодня рабочий прототип… Обязательное ядро: 1) вход по логину и паролю, профиль: ФИО, факультет, направление, курс, группа; 2) расписание на сегодня и на неделю: аудитория, преподаватель, заметные переносы и изменения; 3) успеваемость… понятная картина «как у меня дела»; 4) заявки и справки… видеть статус; 5) уведомления…<br>
 Требования: настоящий работающий прототип по ссылке… работает на телефоне от 360 px; данные только вымышленные… Безопасность проверяется: чужой профиль или заявку не открыть даже подменой адреса (проверка прав на сервере); пароли хранятся хешем…<br>
@@ -93,8 +97,10 @@
 <p>Сработало то, что критерии сформулированы проверяемо («подмена id → 404», «360 px», «пароли хешем»). Агент превратил их в автотесты до того, как показывать результат. Отдельно в промпте заданы рамки: не трогать чужие папки, писать код с нуля, не вводить пароли и не создавать аккаунты.</p>
 
 <h3>Этап 1. Хостинг — главный риск</h3>
-<blockquote>Сравни 2–3 варианта (российские PaaS вроде Amvera или Timeweb Cloud, либо VPS) по доступности из РФ, бесплатности и скорости деплоя и предложи один. Аккаунты регистрирует сам пользователь: ты не вводишь пароли и не создаёшь аккаунты, только говоришь, что сделать.</blockquote>
-<p>Выбрали Amvera: деплой одной командой <code>git push</code>, HTTPS-домен из коробки, постоянный том для базы. Агент выдал пошаговую инструкцию, регистрацию и оплату человек сделал сам.</p>
+<blockquote>Сравни 2–3 варианта… по доступности из РФ, бесплатности и скорости деплоя и предложи один. Аккаунты регистрирует сам пользователь: ты не вводишь пароли и не создаёшь аккаунты, только говоришь, что сделать.</blockquote>
+<p>Первый ответ агента про оплату тарифа нас не устроил:</p>
+<blockquote>Что за прикол? Почему мы должны платить на хакатоне? Давай какой-нибудь бесплатный вариант.</blockquote>
+<p>Агент перепроверил варианты. Бесплатные зарубежные хостинги (Vercel, Render, Railway) с 2025 года режутся российскими провайдерами, и жюри без VPN увидело бы пустую страницу. На бесплатном PythonAnywhere не запускается FastAPI. А у Amvera есть стартовый бонус: при поминутной оплате его хватает до начала декабря. Регистрацию человек сделал сам, агент по скриншотам подсказывал каждый шаг мастера. Когда мастер Amvera сам закоммитил свой конфиг, агент слил историю без принудительной перезаписи.</p>
 
 <h3>Этап 2. Архитектура и ядро</h3>
 <p>Агент предложил сервер с рендерингом страниц вместо SPA и обосновал выбор:</p>
@@ -103,14 +109,35 @@
   <li>никаких токенов и ключей в браузере;</li>
   <li>быстрая загрузка на телефоне.</li>
 </ul>
-<p>Модель данных разделена на справочники (факультет → направление → группа) и личные данные студента. Каждый запрос к личным данным фильтруется по вошедшему пользователю.</p>
-<p>Демо-данные считаются от дня первого запуска, поэтому «сегодня» в расписании всегда актуально. Два студента нарочно разные: у одной всё хорошо и бюджет, у другого контракт, долг с пересдачей и риск по дисциплине. Так видно, как кабинет говорит «как у меня дела» в обоих случаях.</p>
+<p>Модель данных разделена на справочники (факультет → направление → группа) и личные данные студента. Демо-данные считаются от дня первого запуска, поэтому «сегодня» в расписании всегда актуально. Два студента нарочно разные: у одной всё хорошо и бюджет, у другого контракт, долг с пересдачей и риск по дисциплине.</p>
 
-<h3>Этап 3. Пауза, продолжение и проверка</h3>
-<blockquote>Продолжай. Порядок: 1) requirements.txt, запуск локально, проверка всех пяти разделов, входа, разделения данных двух студентов (подмена id → 404) и ширины 360 px; 2) первый коммит; 3) деплой, как только будут данные Amvera; 4) по ходу — скриншоты и промпты для PDF-описания.</blockquote>
-<p>Агент прогнал тесты, открыл прототип во встроенном браузере на 360 px и прошёл каждый раздел. Отправил заявку, руками перебрал адреса чужих заявок, справок, уведомлений и страниц сотрудника. Нашёл и исправил ошибки из раздела 4. Правила, на которых ИИ уже ошибался, записаны в <code>AGENTS.md</code> — документ для следующих агентов.</p>
+<h3>Этап 3. Проверка</h3>
+<blockquote>Продолжай. Порядок: 1) requirements.txt, запуск локально, проверка всех пяти разделов, входа, разделения данных двух студентов (подмена id → 404) и ширины 360 px; 2) первый коммит; 3) деплой…</blockquote>
+<p>Агент прогнал тесты, открыл прототип во встроенном браузере на 360 px и прошёл каждый раздел. Отправил заявку, руками перебрал адреса чужих заявок, справок, уведомлений и страниц сотрудника. Нашёл и исправил ошибки из раздела 5. Правила, на которых ИИ уже ошибался, записаны в <code>AGENTS.md</code> — документ для следующих агентов.</p>
 
-<h2>4. Ошибки ИИ и как их поймали</h2>
+<h2>4. Дизайн: от шаблонного к академичному</h2>
+<p>Первую версию мы открыли на телефоне уже на хостинге. Всё работало, но вид был слишком типовым: пастельные плашки, цветная полоска слева у карточки, крупные скругления. С первого взгляда видно «интерфейс, сгенерированный ИИ», и он никак не связан с вузом. Промпт:</p>
+<blockquote>Надо поработать над дизайном: слишком сильно видно, что делал ИИ. Мы ведь делаем это для МГИМО? Может, взять дизайн, который больше им подходит: цвета, темы, какие-то концепции. А то вот такие блоки сильно выдают, что это делал Claude.</blockquote>
+<p>Агент предложил академичную систему. Логотип и фирменный стиль вуза не копировали: по правилам конкурса кабинет должен выглядеть как концепт.</p>
+<ul>
+  <li><b>Цвет:</b> тёмно-синий и приглушённое золото на тёплом «бумажном» фоне. Тёмная тема в той же гамме.</li>
+  <li><b>Типографика:</b> заголовки и цифры с засечками, как в документах и дипломах. Текст без засечек ради читаемости. Шрифты системные, без загрузки файлов.</li>
+  <li><b>Формы:</b> тонкие линейки и пунктир, как в ведомости, вместо пастельных плашек. Статусы — строгие «штампы» заглавными буквами вместо цветных пилюль. Сводка успеваемости — строка цифр через вертикальные линейки, подсказки — как примечания под чертой.</li>
+  <li><b>Навигация:</b> тёмно-синяя шапка с золотой кромкой, на компьютере — тёмно-синее боковое меню.</li>
+</ul>
+<p>Вся смена дизайна — один файл стилей: разметка страниц почти не менялась, автотесты прошли без правок.</p>
+<div class="shots four">
+  <figure><img src="screenshots/process/06-grades-fixed.jpg" alt=""><figcaption>Было: пастельные плашки, полоска слева</figcaption></figure>
+  <figure><img src="screenshots/v2/m3-grades.jpg" alt=""><figcaption>Стало: засечки, линейки, «штампы»</figcaption></figure>
+  <figure><img src="screenshots/process/01-login-360.jpg" alt=""><figcaption>Было: вход</figcaption></figure>
+  <figure><img src="screenshots/v2/m0-login.jpg" alt=""><figcaption>Стало: вход</figcaption></figure>
+</div>
+<div class="shots two">
+  <figure><img src="screenshots/v1/d1-dashboard.jpg" alt=""><figcaption>Было: главная на компьютере</figcaption></figure>
+  <figure><img src="screenshots/v2/d1-dashboard.jpg" alt=""><figcaption>Стало: тёмно-синее меню, золотые акценты</figcaption></figure>
+</div>
+
+<h2>5. Ошибки ИИ и как их поймали</h2>
 <table>
   <tr><th style="width:4%">#</th><th style="width:40%">Что сделал ИИ</th><th style="width:22%">Как нашли</th><th>Как исправили</th></tr>
   <tr><td>1</td><td>Назвал список контрольных точек <code>items</code>. В Jinja <code>r.items</code> — встроенный метод словаря, страница успеваемости падала с <code>TypeError</code>.</td><td>Автотест «все страницы отдают 200»</td><td>Ключ переименован в <code>kts</code>, правило записано в <code>AGENTS.md</code>.</td></tr>
@@ -121,19 +148,17 @@
   <tr><td>6</td><td>Средний балл с точкой: «4.62».</td><td>Просмотр</td><td>Фильтр <code>decimal</code> → «4,62».</td></tr>
   <tr><td>7</td><td>Главная: «на этой неделе 4 изменения», расписание за ту же неделю: «5 изменений». Перенос пары считался дважды.</td><td>Сравнение скриншотов</td><td>Оба экрана считают одной функцией <code>changes_between</code>.</td></tr>
   <tr><td>8</td><td>Ряд кнопок-якорей на 360 px уезжал за край экрана.</td><td>Скрипт: элементы шире экрана</td><td>Кнопки переносятся на вторую строку.</td></tr>
+  <tr><td>9</td><td>При смене дизайна запретил перенос кнопки «Прочитать все», и страница уведомлений стала шире телефона: 374 px вместо 360.</td><td>Тот же скрипт после редизайна</td><td>Заголовок страницы переносит кнопку на новую строку.</td></tr>
+  <tr><td>10</td><td>Первым предложил платный тариф хостинга, хотя бонус Amvera покрывает весь срок конкурса.</td><td>Вопрос человека</td><td>Пересчитал: бонус 111 ₽ при 0,40 ₽ в час хватает примерно на 11 дней, это после 28 ноября.</td></tr>
 </table>
-<p>Логические ошибки (1–2) поймали автотесты, которые агент написал сам по критериям из промпта. Ошибки «человеческого» качества (3–8: падежи, типографика, противоречия между экранами) нашлись только при просмотре на реальной ширине. Отсюда правило работы: каждый шаг — тест плюс просмотр.</p>
+<p>Логические ошибки (1–2) поймали автотесты, которые агент написал сам по критериям из промпта. Ошибки «человеческого» качества (3–9: падежи, типографика, противоречия между экранами, вёрстка) нашлись только при просмотре на реальной ширине. Отсюда правило работы: каждый шаг — тест плюс просмотр. Ошибку 10 поймал человек.</p>
 <div class="shots">
   <figure><img src="screenshots/process/02-dashboard-bug-capitalize.jpg" alt=""><figcaption>До: «22 Ноября», «Неделя: Числитель» (ошибки 3–4)</figcaption></figure>
-  <figure><img src="screenshots/process/05-grades-bug-anchors-grammar.jpg" alt=""><figcaption>До: падеж в подсказке, «4.62», обрезанная кнопка (5, 6, 8)</figcaption></figure>
-  <figure><img src="screenshots/process/06-grades-fixed.jpg" alt=""><figcaption>После исправления</figcaption></figure>
-</div>
-<div class="shots two">
-  <figure><img src="screenshots/process/14-dashboard-bug-change-count.jpg" alt=""><figcaption>До: «на этой неделе 4 изменения» на главной против 5 в расписании (ошибка 7)</figcaption></figure>
-  <figure><img src="screenshots/final/d2-schedule.jpg" alt=""><figcaption>После: расписание тоже показывает 4</figcaption></figure>
+  <figure><img src="screenshots/process/05-grades-bug-anchors-grammar.jpg" alt=""><figcaption>До: падеж, «4.62», обрезанная кнопка (5, 6, 8)</figcaption></figure>
+  <figure><img src="screenshots/process/15-redesign-bug-overflow.jpg" alt=""><figcaption>После редизайна: кнопка вылезла за край (9)</figcaption></figure>
 </div>
 
-<h2>5. Вход, хранение данных и защита — простыми словами</h2>
+<h2>6. Вход, хранение данных и защита — простыми словами</h2>
 <ul>
   <li><b>Пароль</b> не хранится нигде. В базе только «отпечаток» bcrypt, по нему пароль не восстановить. В коде и репозитории паролей нет.</li>
   <li><b>После входа</b> браузер получает случайный пропуск (cookie <code>HttpOnly</code>, <code>SameSite=Lax</code>, по HTTPS ещё и <code>Secure</code>), недоступный скриптам. На сервере хранится только отпечаток пропуска, срок 7 дней. «Выйти на всех устройствах» гасит все пропуска.</li>
@@ -144,33 +169,32 @@
   <li><b>Данные</b> лежат в базе SQLite на постоянном диске хостинга. Для масштабирования достаточно указать PostgreSQL в переменной <code>DATABASE_URL</code>, код не меняется.</li>
 </ul>
 <div class="shots">
-  <figure><img src="screenshots/process/11-foreign-request-404.jpg" alt=""><figcaption>Студент подставил номер чужой заявки: 404</figcaption></figure>
+  <figure><img src="screenshots/v2/m7-foreign-404.jpg" alt=""><figcaption>Студент подставил номер чужой заявки: 404</figcaption></figure>
   <figure><img src="screenshots/process/09-request-form-error.jpg" alt=""><figcaption>Понятная ошибка формы: проверка на сервере</figcaption></figure>
-  <figure><img src="screenshots/process/01-login-360.jpg" alt=""><figcaption>Вход: пометка «демо-прототип, не вводите настоящие учётные записи»</figcaption></figure>
+  <figure><img src="screenshots/v2/m0-login.jpg" alt=""><figcaption>Вход: пометка «демо-прототип, не вводите настоящие учётные записи»</figcaption></figure>
 </div>
 
-<h2>6. Что сделано вручную</h2>
+<h2>7. Что сделано вручную</h2>
 <ul>
   <li>Выбор номинации и идеи, постановка задачи и критериев приёмки.</li>
-  <li>Регистрация на хостинге, оплата, создание проекта и HTTPS-домена, отправка кода на хостинг: пароли от сервисов вводил только человек.</li>
-  <li>Решения на развилках: хостинг, пауза, что не делать (видео отложено).</li>
-  <li>Проверка с телефона и вычитка описания.</li>
+  <li>Регистрация на хостинге, создание проекта и HTTPS-домена, отправка кода на хостинг: пароли от сервисов вводил только человек.</li>
+  <li>Решения на развилках: бесплатный хостинг вместо платного, переделка дизайна под академичный стиль, что не делать (видео отложено).</li>
+  <li>Проверка прототипа с телефона по мобильному интернету без VPN и вычитка описания.</li>
   <li>Отправка работы в кабинете конкурса — капитан команды.</li>
 </ul>
 
-<h2>7. От идеи до готового кабинета</h2>
-<p class="note">Компьютер (светлая тема, боковое меню) и кабинет сотрудника деканата на телефоне (тёмная тема).</p>
+<h2 class="pb">8. Готовый кабинет</h2>
 <div class="shots one">
-  <figure><img src="screenshots/final/d1-dashboard.jpg" alt=""><figcaption>Главная на компьютере: пары, «как у меня дела», дедлайны</figcaption></figure>
+  <figure><img src="screenshots/v2/d1-dashboard.jpg" alt=""><figcaption>Главная на компьютере: пары, «как у меня дела», дедлайны</figcaption></figure>
 </div>
 <div class="shots two">
-  <figure><img src="screenshots/final/d3-grades.jpg" alt=""><figcaption>Успеваемость: долг, баллы против порога допуска</figcaption></figure>
-  <figure><img src="screenshots/final/d4-request-ready.jpg" alt=""><figcaption>Заявка готова: шаги статуса, история, электронный документ</figcaption></figure>
+  <figure><img src="screenshots/v2/d3-grades.jpg" alt=""><figcaption>Успеваемость: долг, баллы против порога допуска</figcaption></figure>
+  <figure><img src="screenshots/v2/d4-request-ready.jpg" alt=""><figcaption>Заявка готова: шаги статуса, история, электронный документ</figcaption></figure>
 </div>
 <div class="shots">
-  <figure><img src="screenshots/final/m6-staff-queue.jpg" alt=""><figcaption>Сотрудник: очередь заявок с фильтрами и поиском</figcaption></figure>
-  <figure><img src="screenshots/final/m7-staff-request.jpg" alt=""><figcaption>Сотрудник: карточка заявки и смена статуса</figcaption></figure>
-  <figure><img src="screenshots/process/10-request-created.jpg" alt=""><figcaption>Студент: заявка отправлена, статус «Подана»</figcaption></figure>
+  <figure><img src="screenshots/v2/m8-staff-queue.jpg" alt=""><figcaption>Сотрудник: очередь заявок с фильтрами и поиском</figcaption></figure>
+  <figure><img src="screenshots/v2/m9-staff-request.jpg" alt=""><figcaption>Сотрудник: карточка заявки и смена статуса</figcaption></figure>
+  <figure><img src="screenshots/process/10-request-created.jpg" alt=""><figcaption>Первая версия: заявка отправлена, статус «Подана»</figcaption></figure>
 </div>
 <p class="note">Код, тексты, иконки и логотип созданы с нуля для конкурса. Подробности для разработчиков — в <code>README.md</code> и <code>AGENTS.md</code> репозитория.</p>
 
