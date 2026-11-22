@@ -18,7 +18,8 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, PlainTextResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import func, select, update
+from sqlalchemy import delete, func, select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
@@ -255,6 +256,9 @@ def dashboard(request: Request, user: m.User = Depends(current_user), db: Sessio
     if not remaining:
         next_day, next_lessons = svc.next_study_day(db, user.group_id, t)
     grades = svc.grades_overview(db, user)
+    nearest = min((r for r in grades["debts"] if r.retake_at and r.retake_at >= svc.now()),
+                  key=lambda r: (r.retake_at, r.id), default=None)
+    next_action = svc.retake_choices(db, user, grades["debts"])[nearest.id] if nearest else None
     deadlines = svc.upcoming(db, user, days=14)
     active_requests = db.scalars(
         select(m.StudentRequest).where(m.StudentRequest.student_id == user.id,
@@ -265,7 +269,7 @@ def dashboard(request: Request, user: m.User = Depends(current_user), db: Sessio
     week = svc.default_week(t)
     changes = svc.changes_between(db, user.group_id, week, week + timedelta(days=6))
     return render(request, "dashboard.html", db, lessons=lessons, has_remaining=bool(remaining),
-                  next_day=next_day, next_lessons=next_lessons, grades=grades,
+                  next_day=next_day, next_lessons=next_lessons, grades=grades, nearest=nearest, next_action=next_action,
                   deadlines=deadlines[:4], deadlines_total=len(deadlines),
                   active_requests=active_requests, notes=notes, week_changes=changes)
 
@@ -335,7 +339,7 @@ def schedule_ics(user: m.User = Depends(student), db: Session = Depends(get_db))
 def grades(request: Request, user: m.User = Depends(student), db: Session = Depends(get_db)):
     overview = svc.grades_overview(db, user)
     return render(request, "grades.html", db, grades=overview,
-                  retakes=svc.retake_requests(db, user, overview["debts"]),
+                  retakes=svc.retake_choices(db, user, overview["debts"]),
                   exams=svc.session_exams(db, user))
 
 
@@ -359,24 +363,46 @@ def requests_list(request: Request, user: m.User = Depends(student), db: Session
                   ok=request.query_params.get("ok"))
 
 
+def debt_context(db, user, type_code, debt_id):
+    if debt_id is None:
+        return None, None
+    debts = db.scalars(select(m.PastResult).where(m.PastResult.student_id == user.id,
+                                                  m.PastResult.debt.is_(True))).all()
+    debt = next((item for item in debts if item.id == debt_id), None)
+    if type_code != "retake" or debt is None:
+        raise HTTPException(status_code=404)
+    action, existing = svc.retake_choices(db, user, debts)[debt_id]
+    if action == "existing":
+        return debt, RedirectResponse(f"/requests/{existing.id}", status_code=303)
+    if action == "list":
+        return debt, RedirectResponse("/requests", status_code=303)
+    return debt, None
+
+
 @app.get("/requests/new")
-def request_new(request: Request, type: str | None = None, user: m.User = Depends(student),
+def request_new(request: Request, type: str | None = None, debt_id: int | None = None, user: m.User = Depends(student),
                 db: Session = Depends(get_db)):
     if type and type not in svc.REQUEST_TYPES:
         raise HTTPException(status_code=404)
-    return render(request, "request_new.html", db, type_code=type,
-                  spec=svc.REQUEST_TYPES.get(type) if type else None, errors={}, form={})
+    debt, redirect = debt_context(db, user, type, debt_id)
+    if redirect:
+        return redirect
+    return render(request, "request_new.html", db, type_code=type, debt=debt,
+                  spec=svc.REQUEST_TYPES.get(type) if type else None, errors={}, form={"purpose": debt.course if debt else ""})
 
 
 @app.post("/requests/new")
-def request_create(request: Request, type_code: str = Form(...), purpose: str = Form(""),
+def request_create(request: Request, debt_id: int | None = Form(None), type_code: str = Form(...), purpose: str = Form(""),
                    copies: int = Form(1), delivery: str = Form("electronic"), comment: str = Form(""),
                    csrf: str = Form(""), user: m.User = Depends(student), db: Session = Depends(get_db)):
     sec.check_csrf(request, csrf)
     spec = svc.REQUEST_TYPES.get(type_code)
     if not spec:
         raise HTTPException(status_code=400)
-    purpose, comment = purpose.strip(), comment.strip()
+    debt, redirect = debt_context(db, user, type_code, debt_id)
+    if redirect:
+        return redirect
+    purpose, comment = (debt.course if debt else purpose.strip()), comment.strip()
     errors = {}
     if spec["purpose_required"] and not purpose:
         errors["purpose"] = f"Заполните поле «{spec['purpose_label']}»."
@@ -389,7 +415,7 @@ def request_create(request: Request, type_code: str = Form(...), purpose: str = 
     if delivery not in svc.DELIVERY_LABEL or (delivery == "electronic" and not spec["electronic"]):
         delivery = "paper"
     if errors:
-        return render(request, "request_new.html", db, type_code=type_code, spec=spec, errors=errors,
+        return render(request, "request_new.html", db, type_code=type_code, spec=spec, errors=errors, debt=debt,
                       form=dict(purpose=purpose, copies=copies, delivery=delivery, comment=comment),
                       status_code=422)
     ts = svc.now()
@@ -399,7 +425,24 @@ def request_create(request: Request, type_code: str = Form(...), purpose: str = 
                            created_at=ts, updated_at=ts)
     req.events.append(m.RequestEvent(status="submitted", actor=user.full_name, created_at=ts))
     db.add(req)
-    db.commit()
+    if debt is not None:
+        db.flush()
+        # Заменяем только привязку закрытой без выдачи заявки.
+        inactive = select(m.StudentRequest.id).where(
+            m.StudentRequest.student_id == user.id,
+            m.StudentRequest.status.not_in(svc.RETAKE_CURRENT_STATUSES))
+        db.execute(delete(m.RetakeDirection).where(
+            m.RetakeDirection.debt_id == debt.id, m.RetakeDirection.request_id.in_(inactive)))
+        db.add(m.RetakeDirection(debt_id=debt.id, request_id=req.id))
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        if debt_id is not None:
+            _, redirect = debt_context(db, user, type_code, debt_id)
+            if redirect:
+                return redirect
+        raise
     return RedirectResponse(f"/requests/{req.id}?ok=created", status_code=303)
 
 

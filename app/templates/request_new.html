@@ -26,21 +26,22 @@
   <form method="post" action="/requests/new" class="form" data-loading novalidate>
     <input type="hidden" name="csrf" value="{{ csrf }}">
     <input type="hidden" name="type_code" value="{{ type_code }}">
+    {% if debt %}<input type="hidden" name="debt_id" value="{{ debt.id }}">{% endif %}
     <label class="field{% if errors.purpose %} has-error{% endif %}">
       <span class="label">{{ spec.purpose_label }}{% if spec.purpose_required %} <i class="req-star">*</i>{% endif %}</span>
-      <input class="input" name="purpose" value="{{ form.purpose or '' }}" placeholder="{{ spec.purpose_hint }}" maxlength="300" {% if spec.purpose_required %}required{% endif %}>
+      <input class="input" name="purpose" {% if debt %}readonly{% endif %} value="{{ form.purpose or '' }}" placeholder="{{ spec.purpose_hint }}" maxlength="300" {% if spec.purpose_required %}required{% endif %}>
       {% if errors.purpose %}<span class="error">{{ errors.purpose }}</span>{% endif %}
     </label>
-    {% if spec.cat == "cert" %}
+    {% if spec.cat == "cert" or type_code == "retake" %}
     <div class="row-2">
-      <label class="field{% if errors.copies %} has-error{% endif %}">
+      {% if spec.cat == "cert" %}<label class="field{% if errors.copies %} has-error{% endif %}">
         <span class="label">Экземпляров</span>
         <select class="input" name="copies">
           {% for n in range(1, 6) %}<option value="{{ n }}"{% if (form.copies or 1) == n %} selected{% endif %}>{{ n }}</option>{% endfor %}
         </select>
         {% if errors.copies %}<span class="error">{{ errors.copies }}</span>{% endif %}
       </label>
-      <fieldset class="field">
+      {% endif %}<fieldset class="field">
         <legend class="label">Как получить</legend>
         <div class="radios">
           {% if spec.electronic %}

@@ -307,7 +307,10 @@ def course_overview(course: m.Course, items: list[m.Assessment]) -> dict:
                 w_admission=width_class(ADMISSION, total))
 
 
-def retake_requests(db: Session, user: m.User, debts: list[m.PastResult]) -> dict:
+RETAKE_CURRENT_STATUSES = ("submitted", "in_progress", "ready", "done")
+
+
+def retake_choices(db: Session, user: m.User, debts: list[m.PastResult]) -> dict:
     """В старых заявках дисциплина хранится в свободном поле «Цель»."""
     def normalized(name: str) -> str:
         return " ".join(name.casefold().split())
@@ -317,16 +320,32 @@ def retake_requests(db: Session, user: m.User, debts: list[m.PastResult]) -> dic
         debts_by_course[normalized(debt.course)].append(debt.id)
 
     requests_by_course = defaultdict(list)
+    choices = {}
     if debts:
-        requests = db.scalars(select(m.StudentRequest).where(
+        requests = db.execute(select(m.StudentRequest, m.RetakeDirection.debt_id)
+                              .outerjoin(m.RetakeDirection, m.RetakeDirection.request_id == m.StudentRequest.id)
+                              .where(
             m.StudentRequest.student_id == user.id, m.StudentRequest.type_code == "retake",
-            m.StudentRequest.status.in_(("submitted", "in_progress", "ready", "done")),
+            m.StudentRequest.status.in_(RETAKE_CURRENT_STATUSES),
         ))
-        for request in requests:
-            requests_by_course[normalized(request.purpose)].append(request)
+        for request, debt_id in requests:
+            if debt_id is None:
+                requests_by_course[normalized(request.purpose)].append(request)
+            else:
+                choices[debt_id] = ("existing", request)
 
-    return {ids[0]: requests_by_course[course][0] for course, ids in debts_by_course.items()
-            if len(ids) == 1 and len(requests_by_course[course]) == 1}
+    for course, ids in debts_by_course.items():
+        matches = requests_by_course[course]
+        for debt_id in ids:
+            if debt_id in choices:
+                continue
+            if not matches:
+                choices[debt_id] = ("new", None)
+            elif len(ids) == len(matches) == 1:
+                choices[debt_id] = ("existing", matches[0])
+            else:
+                choices[debt_id] = ("list", None)
+    return choices
 
 
 def grades_overview(db: Session, user: m.User) -> dict:

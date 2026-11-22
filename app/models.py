@@ -205,6 +205,14 @@ class StudentRequest(Base):
     )
 
 
+class RetakeDirection(Base):
+    """Контекст новой заявки. Старые заявки продолжают работать без этой записи."""
+
+    __tablename__ = "retake_directions"
+    debt_id: Mapped[int] = mapped_column(ForeignKey("past_results.id"), primary_key=True)
+    request_id: Mapped[int] = mapped_column(ForeignKey("requests.id"), unique=True)
+
+
 class RequestEvent(Base):
     __tablename__ = "request_events"
     id: Mapped[int] = mapped_column(primary_key=True)

@@ -100,3 +100,14 @@
 {% macro note_kind_icon(kind) -%}
 {{ icon({"news": "megaphone", "schedule": "calendar", "request": "file", "deadline": "clock"}.get(kind, "bell")) }}
 {%- endmacro %}
+
+{% macro retake_action(debt, choice) -%}
+  {% set action, req = choice %}
+  {% if action == "existing" %}
+    <a class="link" href="/requests/{{ req.id }}">{{ "Открыть готовое направление" if req.delivery == "electronic" and req.status in ["ready", "done"] else "Посмотреть заявку" }}</a>
+  {% elif action == "list" %}
+    <a class="link" href="/requests">Проверить свои заявки</a>
+  {% else %}
+    <a class="link" href="/requests/new?type=retake&amp;debt_id={{ debt.id }}">Заказать направление</a>
+  {% endif %}
+{%- endmacro %}

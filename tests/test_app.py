@@ -268,17 +268,74 @@ def test_retake_link_requires_unique_own_match(s2):
     with SessionLocal() as db:
         user = db.scalar(select(m.User).where(m.User.login == "student2"))
         debt, = services.grades_overview(db, user)["debts"]
-        existing = services.retake_requests(db, user, [debt])[debt.id]
+        existing = services.retake_choices(db, user, [debt])[debt.id][1]
         assert f'href="/requests/{existing.id}">Открыть готовое направление' in s2.get("/grades").text
         other = db.scalar(select(m.User).where(m.User.login == "student1"))
         duplicate = m.StudentRequest(student_id=other.id, type_code="retake", purpose=debt.course,
                                      title=existing.title, status="ready", created_at=existing.created_at,
                                      updated_at=existing.updated_at)
         db.add(duplicate)
-        assert services.retake_requests(db, user, [debt]) == {debt.id: existing}
+        assert services.retake_choices(db, user, [debt])[debt.id] == ("existing", existing)
         duplicate.student_id = user.id
-        assert not services.retake_requests(db, user, [debt])
+        assert services.retake_choices(db, user, [debt])[debt.id] == ("list", None)
         duplicate.purpose = "Другая дисциплина"
-        assert services.retake_requests(db, user, [debt]) == {debt.id: existing}
+        assert services.retake_choices(db, user, [debt])[debt.id] == ("existing", existing)
         existing.status = "cancelled"
-        assert not services.retake_requests(db, user, [debt])
+        assert services.retake_choices(db, user, [debt])[debt.id] == ("new", None)
+
+
+@pytest.fixture
+def new_debt():
+    from datetime import timedelta
+    from sqlalchemy import delete, select
+    from app import models as m, services
+    from app.db import SessionLocal
+
+    with SessionLocal() as db:
+        student = db.scalar(select(m.User).where(m.User.login == "student1"))
+        debt = m.PastResult(student_id=student.id, semester=1, course="Тестовая дисциплина",
+                            control="exam", grade="2", debt=True,
+                            retake_at=services.now() + timedelta(days=1), retake_room="А-101")
+        db.add(debt)
+        db.commit()
+        yield debt
+        db.execute(delete(m.RetakeDirection).where(m.RetakeDirection.debt_id == debt.id))
+        db.delete(debt)
+        db.commit()
+
+
+def test_retake_from_dashboard_to_saved_request(s1, new_debt):
+    path = f"/requests/new?type=retake&debt_id={new_debt.id}"
+    home = s1.get("/").text
+    assert "Ближайшая пересдача" in home and "А-101" in home
+    assert path.replace("&", "&amp;") in home
+    form = s1.get(path).text
+    assert f'value="{new_debt.course}"' in form
+    data = dict(type_code="retake", debt_id=new_debt.id, csrf=csrf_of(form),
+                delivery="electronic", purpose="Произвольная строка", comment="я" * 1001)
+    invalid = s1.post("/requests/new", data=data)
+    assert invalid.status_code == 422 and f'value="{new_debt.course}"' in invalid.text
+    assert f'name="debt_id" value="{new_debt.id}"' in invalid.text
+    data["comment"] = ""
+    sent = s1.post("/requests/new", data=data, follow_redirects=False)
+    url = sent.headers["location"].split("?")[0]
+    assert new_debt.course in s1.get(url).text
+    assert f'href="{url}">Посмотреть заявку' in s1.get("/").text
+    assert s1.post("/requests/new", data=data, follow_redirects=False).headers["location"] == url
+    assert s1.get(path, follow_redirects=False).headers["location"] == url
+
+
+def test_retake_context_is_scoped_to_student_and_type(s1, s2, new_debt):
+    for client, kind in [(s2, "retake"), (s1, "topic")]:
+        assert client.get(f"/requests/new?type={kind}&debt_id={new_debt.id}").status_code == 404
+        token = csrf_of(client.get("/requests/new?type=retake").text)
+        assert client.post("/requests/new", data=dict(type_code=kind, debt_id=new_debt.id,
+                                                      csrf=token, purpose="Тест")).status_code == 404
+
+
+def test_retake_dashboard_ready_document(s2):
+    home = s2.get("/").text
+    match = re.search(r'href="(/requests/\d+)">Открыть готовое направление', home)
+    assert match and "Ближайшая пересдача" in home
+    assert match[1] + "/document" in s2.get(match[1]).text
+    assert s2.get(match[1] + "/document").status_code == 200

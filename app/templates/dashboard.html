@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import icon, badge, lesson, empty, deadline_row, status_badge %}
+{% from "macros.html" import retake_action, icon, badge, lesson, empty, deadline_row, status_badge %}
 {% block title %}Главная{% endblock %}
 {% block content %}
 <section class="hello">
@@ -7,6 +7,15 @@
   <h1>{% if now.hour < 12 %}Доброе утро{% elif now.hour < 18 %}Добрый день{% else %}Добрый вечер{% endif %}, {{ user.first_name }}</h1>
   <p class="muted">{{ user.group.name }} · {{ user.group.course }} курс · {{ user.group.program.name }}</p>
 </section>
+
+{% if nearest %}
+<section class="card" aria-label="Ближайшая пересдача">
+  <div class="card-h"><h2>{{ icon("clock") }}Ближайшая пересдача</h2></div>
+  <b>{{ nearest.course }}</b>
+  <p class="sub">{{ nearest.retake_at|ru_date(weekday=True) }}, {{ nearest.retake_at.strftime("%H:%M") }} · {{ nearest.retake_room }}</p>
+  {{ retake_action(nearest, next_action) }}
+</section>
+{% endif %}
 
 <div class="grid-dash">
   {# ---------- Пары ---------- #}
