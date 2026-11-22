@@ -13,8 +13,8 @@
 
 <nav class="filters" aria-label="Статус">
   {% set open_count = counts.get("submitted", 0) + counts.get("in_progress", 0) %}
-  <a class="filter{% if status == 'open' %} is-active{% endif %}" href="/staff?status=open">Открытые <b>{{ open_count }}</b></a>
-  {% for st in ["submitted", "in_progress", "ready", "done", "rejected"] %}
+  <a class="filter{% if status == 'open' %} is-active{% endif %}" href="/staff?status=open">Требуют обработки <b>{{ open_count }}</b></a>
+  {% for st in ["submitted", "in_progress", "clarify", "ready", "done", "rejected"] %}
   <a class="filter{% if status == st %} is-active{% endif %}" href="/staff?status={{ st }}">{{ STATUS_LABEL[st] }} <b>{{ counts.get(st, 0) }}</b></a>
   {% endfor %}
   <a class="filter{% if status == 'all' %} is-active{% endif %}" href="/staff?status=all">Все</a>

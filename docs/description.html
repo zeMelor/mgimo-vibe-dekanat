@@ -30,6 +30,7 @@
   .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 6pt 14pt; margin: 10pt 0; padding: 10pt 12pt; border: 1px solid var(--line); border-top: 3px solid var(--navy); border-radius: 4px; background: var(--soft); }
   .facts b { display: block; font-size: 8pt; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
   .shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8pt; margin: 6pt 0 10pt; break-inside: avoid; }
+  .cover .shots img { max-height: 105mm; width: auto; max-width: 100%; margin: 0 auto; }
   .shots.four { grid-template-columns: repeat(4, 1fr); }
   .shots.two { grid-template-columns: 1fr 1fr; }
   .shots.one { grid-template-columns: 1fr; }
@@ -59,7 +60,7 @@
     <figure><img src="screenshots/final/jury-admission.jpg" alt="Расчёт допуска"><figcaption>Теория международных отношений: ещё 8 баллов за эссе дают допуск</figcaption></figure>
   </div>
   <p><b>Проверить допуск.</b> У <code>student1</code> откройте первую дисциплину в «Успеваемости». Уже есть 22 балла. Добавьте 7 — получится 29, до допуска не хватит одного. Добавьте 8 — порог 30 достигнут. Кабинет показывает эссе, срок и доступные 15 баллов.</p>
-  <p class="note"><a href="#review-retake">Что изменило независимое ревью</a> · <a href="#prompts">Промпты</a> · <a href="#mistakes">12 разобранных ошибок</a> · <a href="#desktop">Кабинет на компьютере</a></p>
+  <p class="note"><a href="#review-retake">Что изменило независимое ревью</a> · <a href="#prompts">Промпты</a> · <a href="#mistakes">12 разобранных ошибок</a> · <a href="#clarification">Перенос и уточнение</a></p>
 </section>
 
 <h2>1. Какую проблему решает кабинет</h2>
@@ -88,7 +89,7 @@
   <tr><th style="width:30%">Инструмент</th><th>Зачем</th></tr>
   <tr><td><b>Claude Code</b> — агент в десктоп-приложении Claude, модель Claude Opus 5.5</td><td>Основной разработчик: план, модель данных, сервер, шаблоны, стили, демо-данные, автотесты, README, <code>AGENTS.md</code>, черновик этого описания. Сравнил хостинги: проверил доступность и прочитал документацию Amvera через веб-поиск. Работал в отдельной папке и коммитил по шагам. Пароли, регистрацию и отправку кода на хостинг оставлял человеку.</td></tr>
   <tr><td><b>Встроенный браузер Claude</b></td><td>Агент сам открывал прототип на ширине 360 px и 1280 px, в светлой и тёмной теме. Проходил сценарии (вход, заявка, выход, вход сотрудником), скриптом искал элементы шире экрана, проверял ответы 404 и 403 на чужие адреса. Отсюда же скриншоты.</td></tr>
-  <tr><td><b>pytest</b></td><td>44 проверки в итоговом локальном прогоне, включая путь от заявки до выдачи документа.</td></tr>
+  <tr><td><b>pytest</b></td><td>45 проверок в итоговом локальном прогоне, включая путь от заявки до выдачи документа.</td></tr>
   <tr><td><b>Python 3.11, FastAPI, Jinja2, SQLAlchemy, bcrypt</b></td><td>Стек прототипа, все библиотеки под лицензиями MIT, BSD или Apache. Страницы рендерятся на сервере: права проверяются в одном месте, секретов в браузере нет.</td></tr>
   <tr><td><b>Git</b></td><td>История версий и деплой (<code>git push</code> на хостинг).</td></tr>
   <tr><td><b>Amvera</b> (amvera.ru)</td><td>Российский хостинг: открывается без VPN, деплой через git, бесплатный HTTPS-домен, постоянный диск для базы. Работает на стартовом бонусе, команда ничего не платила.</td></tr>
@@ -225,5 +226,16 @@
 </div>
 <p class="note">Код, тексты, иконки и логотип созданы с нуля для конкурса. Подробности для разработчиков — в <code>README.md</code> и <code>AGENTS.md</code> репозитория.</p>
 
+<section class="pb" id="clarification">
+<h2>10. Из уведомления — к паре или заявке</h2>
+<p>У <code>student1</code> уведомление «Перенос: Испанский язык» открывает пятницу и выделяет перенесённую пару в аудитории 4207. Рядом указаны прежний день и причина. У старого уведомления сохраняется ссылка на неделю, если точную пару установить нельзя.</p>
+<p>Если деканату недостаточно данных, сотрудник выбирает «Нужно уточнение» и задаёт вопрос. Студент отвечает прямо в карточке. Заявка возвращается в очередь сотрудника с тем же номером и полной историей.</p>
+<div class="shots">
+  <figure><img src="screenshots/final/jury-moved.jpg" alt="Выделенная пара в расписании"><figcaption>Перенесённая пара и новая аудитория</figcaption></figure>
+  <figure><img src="screenshots/final/jury-question.jpg" alt="Вопрос сотрудника и ответ студента"><figcaption>Студент уточняет название библиотеки</figcaption></figure>
+  <figure><img src="screenshots/final/jury-reply.jpg" alt="История заявки в кабинете сотрудника"><figcaption>Ответ виден сотруднику в истории этой заявки</figcaption></figure>
+</div>
+<p><b>Проверка.</b> Этот путь прошли в Chrome при ширине 360 px до выдачи готового документа. В автотесте отправили ответ повторно и затем из вкладки с предыдущим вопросом. В истории сохранился один ответ на каждый вопрос.</p>
+</section>
 </body>
 </html>

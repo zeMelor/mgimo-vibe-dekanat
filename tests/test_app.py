@@ -416,10 +416,11 @@ def test_document_keeps_issuance_date_after_completion(s1, staff, monkeypatch):
         assert "23 ноября 2026" in doc and "23 ноября 2026" in TestClient(app).get(link).text
 
 
-def test_admission_plan_accounts_for_ungraded_work():
+def test_admission_plan_accounts_for_ungraded_work(monkeypatch):
     from datetime import date
     from app import models as m, services
 
+    monkeypatch.setattr(services, "today", lambda: date(2026, 11, 22))
     course = m.Course(name="Пример")
     scored = m.Assessment(title="Сдано", max_points=30, points=22)
     first = m.Assessment(title="Эссе", max_points=5, due=date(2026, 11, 26))
@@ -428,6 +429,9 @@ def test_admission_plan_accounts_for_ungraded_work():
     assert result["admission_plan"] == [(first, 5), (second, 3)] and result["uncovered"] == 0
     result = services.course_overview(course, [scored, first])
     assert result["uncovered"] == 3
+    first.due = date(2026, 11, 21)
+    result = services.course_overview(course, [scored, first])
+    assert result["admission_plan"] == [] and result["overdue"] == [first] and result["uncovered"] == 8
     for items in ([scored], []):
         result = services.course_overview(course, items)
         assert result["admission_plan"] == [] and result["remaining"] == 0
@@ -456,3 +460,37 @@ def test_move_notification_targets_unique_lesson(s1):
         db.flush()
         assert services.notification_link(db, note, user) == path
         db.rollback()
+
+
+def test_request_clarification_keeps_ticket_and_history(s1, s2, staff):
+    page = s1.get("/requests/new?type=study")
+    created = s1.post("/requests/new", data={"type_code": "study", "purpose": "Проверка уточнения",
+                      "delivery": "electronic", "csrf": csrf_of(page.text)}, follow_redirects=False)
+    path = created.headers["location"].split("?")[0]
+    staff_path = "/staff" + path
+    staff_csrf = csrf_of(staff.get(staff_path).text)
+
+    def ask(question):
+        return staff.post(staff_path, data={"new_status": "clarify", "comment": question, "csrf": staff_csrf},
+                          follow_redirects=False)
+
+    assert ask("  ").status_code == 422
+    assert ask("Куда будет представлена справка?").status_code == 303
+    assert "Уточните данные" in s1.get("/notifications").text
+    detail = s1.get(path).text
+    question = re.search(r'name="question_id" value="(\d+)"', detail)[1]
+    args = {"csrf": csrf_of(detail), "question_id": question, "reply": ""}
+    assert s1.post(path + "/reply", data=args).status_code == 422
+    args["reply"] = "В библиотеку"
+    assert s1.post(path + "/reply", data=args, follow_redirects=False).status_code == 303
+    assert s1.post(path + "/reply", data=args, follow_redirects=False).headers["location"].endswith("ok=changed")
+    assert ask("Как называется библиотека?").status_code == 303
+    assert s1.post(path + "/reply", data=args, follow_redirects=False).headers["location"].endswith("ok=changed")
+    assert s2.post(path + "/reply", data={**args, "csrf": csrf_of(s2.get("/profile").text)}).status_code == 404
+    detail = s1.get(path).text
+    args.update(reply="Университетская библиотека", question_id=re.search(r'name="question_id" value="(\d+)"', detail)[1])
+    assert s1.post(path + "/reply", data=args, follow_redirects=False).status_code == 303
+    assert "Университетская библиотека" in staff.get(staff_path).text
+    assert staff.get(staff_path).text.count("В библиотеку") == 1
+    done = staff.post(staff_path, data={"new_status": "ready", "csrf": staff_csrf}, follow_redirects=False)
+    assert done.status_code == 303 and s1.get(path + "/document").status_code == 200

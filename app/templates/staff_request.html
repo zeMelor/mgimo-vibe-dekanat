@@ -4,6 +4,7 @@
 {% block content %}
 <a class="back" href="/staff">{{ icon("left") }}Все заявки</a>
 {% if ok == "updated" %}<div class="alert alert-good">{{ icon("check") }}<span>Статус обновлён, студент получил уведомление.</span></div>{% endif %}
+{% if ok == "changed" %}<div class="alert alert-info">Статус уже изменился. Проверьте историю заявки.</div>{% endif %}
 {% if error %}<div class="alert alert-bad">{{ icon("alert") }}<span>{{ error }}</span></div>{% endif %}
 
 <div class="page-h">
@@ -36,6 +37,7 @@
     <div class="card-h"><h2>{{ icon("send") }}Изменить статус</h2></div>
     <form method="post" action="/staff/requests/{{ req.id }}" class="form" data-loading>
       <input type="hidden" name="csrf" value="{{ csrf }}">
+      {% if req.events %}<input type="hidden" name="event_id" value="{{ req.events[-1].id }}">{% endif %}
       <fieldset class="field">
         <legend class="label">Новый статус</legend>
         <div class="radios radios-col">
@@ -46,10 +48,12 @@
       </fieldset>
       <label class="field">
         <span class="label">Комментарий студенту</span>
-        <textarea class="input" name="comment" rows="3" maxlength="1000" placeholder="Например: заберите в каб. 214 после 14:00. При отказе — обязательно причина."></textarea>
+        <textarea class="input" name="comment" rows="3" maxlength="1000" placeholder="Например: заберите в каб. 214 после 14:00. Для уточнения напишите вопрос, для отказа — причину."></textarea>
       </label>
       <button class="btn btn-primary btn-block" type="submit" data-loading-text="Сохраняем…">Сохранить и уведомить студента</button>
     </form>
+    {% elif req.status == "clarify" %}
+    <p class="sub">Ждём ответа студента. Когда он ответит, заявка вернётся в работу.</p>
     {% else %}
     <p class="sub">Заявка закрыта, менять статус больше не нужно.</p>
     {% endif %}

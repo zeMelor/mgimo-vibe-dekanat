@@ -6,6 +6,10 @@
 
 {% if ok == "created" %}
 <div class="alert alert-good">{{ icon("check") }}<span>Заявка отправлена в деканат. Статус будет меняться здесь, а мы пришлём уведомление.</span></div>
+{% elif ok == "replied" %}
+<div class="alert alert-good">Ответ передан в деканат. Заявка снова в работе.</div>
+{% elif ok == "changed" %}
+<div class="alert alert-info">Статус заявки изменился. Актуальная история приведена ниже.</div>
 {% elif ok == "cancelled" %}
 <div class="alert alert-info">{{ icon("check") }}<span>Заявка отозвана.</span></div>
 {% elif ok == "locked" %}
@@ -27,6 +31,20 @@
 </ol>
 {% endif %}
 
+{% if req.status == "clarify" %}
+<section class="card">
+  <div class="card-h"><h2>Вопрос деканата</h2></div>
+  <blockquote>{{ req.staff_comment }}</blockquote>
+  <form method="post" action="/requests/{{ req.id }}/reply" class="form" data-loading>
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <input type="hidden" name="question_id" value="{{ req.events[-1].id }}">
+    <label class="field"><span class="label">Ваш ответ</span>
+      <textarea class="input" name="reply" rows="3" maxlength="1000" required>{{ reply|default("") }}</textarea></label>
+    {% if error %}<p class="alert alert-bad" role="alert">{{ error }}</p>{% endif %}
+    <button class="btn btn-primary" type="submit">Ответить деканату</button>
+  </form>
+</section>
+{% endif %}
 {% if req.status == "ready" or req.status == "done" %}
   {% if req.delivery == "electronic" %}
   <section class="card card-good">

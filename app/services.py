@@ -365,7 +365,10 @@ def course_overview(course: m.Course, items: list[m.Assessment]) -> dict:
             "Держите темп — так выходит «отлично»."
     upcoming = sorted((a for a in items if a.points is None and a.due), key=lambda a: a.due)
     # Один возможный набор баллов в порядке сроков; работа без даты идёт последней.
-    candidates = sorted((a for a in items if a.points is None),
+    pending = [a for a in items if a.points is None]
+    as_of = today()
+    overdue = [a for a in pending if a.due and a.due < as_of]
+    candidates = sorted((a for a in pending if not a.due or a.due >= as_of),
                         key=lambda a: (a.due or date.max, a.id or 0))
     plan = []
     gap = need
@@ -374,14 +377,14 @@ def course_overview(course: m.Course, items: list[m.Assessment]) -> dict:
         if take > 0:
             plan.append((assessment, take))
             gap -= take
-    return dict(course=course, kts=items, admission_plan=plan, uncovered=gap, earned=earned, so_far=so_far, total=total,
+    return dict(course=course, kts=items, admission_plan=plan, uncovered=gap, overdue=overdue, earned=earned, so_far=so_far, total=total,
                 remaining=remaining, pct=pct, need=need, status=status, label=label,
                 advice=advice, next_item=upcoming[0] if upcoming else None,
                 w_earned=width_class(earned, total), w_so_far=width_class(so_far, total),
                 w_admission=width_class(ADMISSION, total))
 
 
-RETAKE_CURRENT_STATUSES = ("submitted", "in_progress", "ready", "done")
+RETAKE_CURRENT_STATUSES = ("submitted", "in_progress", "clarify", "ready", "done")
 
 
 def retake_choices(db: Session, user: m.User, debts: list[m.PastResult]) -> dict:
@@ -578,18 +581,19 @@ REQUEST_TYPES: dict[str, dict] = {
 STATUS_LABEL = {
     "submitted": "Подана",
     "in_progress": "В работе",
+    "clarify": "Нужно уточнение",
     "ready": "Готово",
     "done": "Завершена",
     "rejected": "Отклонена",
     "cancelled": "Отозвана",
 }
-STATUS_TONE = {"submitted": "info", "in_progress": "warn", "ready": "good", "done": "neutral",
+STATUS_TONE = {"submitted": "info", "in_progress": "warn", "clarify": "warn", "ready": "good", "done": "neutral",
                "rejected": "bad", "cancelled": "neutral"}
-ACTIVE_STATUSES = ("submitted", "in_progress", "ready")
+ACTIVE_STATUSES = ("submitted", "in_progress", "clarify", "ready")
 # Какие статусы сотрудник может поставить из текущего
 STAFF_TRANSITIONS = {
-    "submitted": ["in_progress", "ready", "rejected"],
-    "in_progress": ["ready", "rejected"],
+    "submitted": ["in_progress", "clarify", "ready", "rejected"],
+    "in_progress": ["ready", "clarify", "rejected"],
     "ready": ["done"],
 }
 DELIVERY_LABEL = {"electronic": "Электронно, в кабинете", "paper": "На бумаге, в деканате"}

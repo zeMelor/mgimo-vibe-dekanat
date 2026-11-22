@@ -201,9 +201,8 @@ class StudentRequest(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime)
     student: Mapped[User] = relationship()
     events: Mapped[list["RequestEvent"]] = relationship(
-        order_by="RequestEvent.created_at", cascade="all, delete-orphan"
+        order_by="(RequestEvent.created_at, RequestEvent.id)", cascade="all, delete-orphan"
     )
-
 
     @property
     def issued_at(self) -> datetime | None:

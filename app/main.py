@@ -455,6 +455,40 @@ def request_detail(request: Request, request_id: int, user: m.User = Depends(stu
                   ok=request.query_params.get("ok"))
 
 
+def change_request_status(db: Session, req: m.StudentRequest, new_status: str, ts: datetime,
+                          event_id: int | None = None) -> bool:
+    # Проверяем состояние и в момент записи: два одновременных ответа не создают два события.
+    statement = update(m.StudentRequest).where(
+        m.StudentRequest.id == req.id, m.StudentRequest.status == req.status,
+        m.StudentRequest.updated_at == req.updated_at)
+    if event_id is not None:
+        latest = select(func.max(m.RequestEvent.id)).where(m.RequestEvent.request_id == req.id).scalar_subquery()
+        statement = statement.where(latest == event_id)
+    result = db.execute(statement.values(status=new_status, updated_at=ts))
+    return result.rowcount == 1
+
+
+@app.post("/requests/{request_id}/reply")
+def request_reply(request: Request, request_id: int, question_id: int = Form(...), reply: str = Form(""),
+                  csrf: str = Form(""), user: m.User = Depends(student), db: Session = Depends(get_db)):
+    sec.check_csrf(request, csrf)
+    req = own_request(db, user, request_id)
+    path = f"/requests/{req.id}"
+    if req.status != "clarify" or not req.events or req.events[-1].id != question_id:
+        return RedirectResponse(path + "?ok=changed", status_code=303)
+    reply = reply.strip()
+    if not 1 <= len(reply) <= 1000:
+        return render(request, "request_detail.html", db, req=req, spec=svc.REQUEST_TYPES.get(req.type_code),
+                      error="Введите ответ от 1 до 1000 символов.", reply=reply, status_code=422)
+    ts = svc.now()
+    if not change_request_status(db, req, "in_progress", ts, question_id):
+        return RedirectResponse(path + "?ok=changed", status_code=303)
+    req.staff_comment = ""  # Вопрос остаётся в истории, но уже не требует ответа.
+    req.events.append(m.RequestEvent(status="in_progress", comment=reply, actor=user.full_name, created_at=ts))
+    db.commit()
+    return RedirectResponse(path + "?ok=replied", status_code=303)
+
+
 @app.post("/requests/{request_id}/cancel")
 def request_cancel(request: Request, request_id: int, csrf: str = Form(""),
                    user: m.User = Depends(student), db: Session = Depends(get_db)):
@@ -463,7 +497,8 @@ def request_cancel(request: Request, request_id: int, csrf: str = Form(""),
     if req.status != "submitted":
         return RedirectResponse(f"/requests/{req.id}?ok=locked", status_code=303)
     ts = svc.now()
-    req.status, req.updated_at = "cancelled", ts
+    if not change_request_status(db, req, "cancelled", ts):
+        return RedirectResponse(f"/requests/{req.id}?ok=locked", status_code=303)
     req.events.append(m.RequestEvent(status="cancelled", actor=user.full_name, created_at=ts))
     db.commit()
     return RedirectResponse(f"/requests/{req.id}?ok=cancelled", status_code=303)
@@ -575,7 +610,7 @@ def staff_queue(request: Request, status: str = "open", q: str = "", user: m.Use
     q = q.strip()[:60]
     if q:
         query = query.where(m.User.full_name.ilike(f"%{q}%") | m.StudentRequest.title.ilike(f"%{q}%"))
-    rows = db.scalars(query.order_by(m.StudentRequest.created_at.desc())).all()
+    rows = db.scalars(query.order_by(m.StudentRequest.updated_at.desc(), m.StudentRequest.id.desc())).all()
     counts = dict(db.execute(select(m.StudentRequest.status, func.count())
                              .group_by(m.StudentRequest.status)).all())
     return render(request, "staff_queue.html", db, rows=rows, status=status, q=q, counts=counts)
@@ -592,7 +627,8 @@ def staff_request(request: Request, request_id: int, user: m.User = Depends(staf
 
 @app.post("/staff/requests/{request_id}")
 def staff_request_update(request: Request, request_id: int, new_status: str = Form(...),
-                         comment: str = Form(""), csrf: str = Form(""), user: m.User = Depends(staff),
+                         comment: str = Form(""), csrf: str = Form(""), event_id: int | None = Form(None),
+                         user: m.User = Depends(staff),
                          db: Session = Depends(get_db)):
     sec.check_csrf(request, csrf)
     req = own_request(db, user, request_id)
@@ -601,22 +637,26 @@ def staff_request_update(request: Request, request_id: int, new_status: str = Fo
     error = None
     if new_status not in options:
         error = "Этот статус сейчас поставить нельзя."
+    elif new_status == "clarify" and not comment:
+        error = "Напишите, что студенту нужно уточнить."
     elif new_status == "rejected" and not comment:
         error = "При отказе напишите причину — студент увидит её в заявке."
     if error:
         return render(request, "staff_request.html", db, req=req, spec=svc.REQUEST_TYPES.get(req.type_code),
                       options=options, ok=None, error=error, status_code=422)
     ts = svc.now()
-    req.status, req.updated_at = new_status, ts
+    if not change_request_status(db, req, new_status, ts, event_id):
+        return RedirectResponse(f"/staff/requests/{req.id}?ok=changed", status_code=303)
     if comment:
         req.staff_comment = comment
     req.events.append(m.RequestEvent(status=new_status, comment=comment, actor=user.full_name, created_at=ts))
-    titles = {"in_progress": f"Заявка «{req.title}» взята в работу",
+    titles = {"clarify": f"Уточните данные: {req.title}",
+              "in_progress": f"Заявка «{req.title}» взята в работу",
               "ready": f"Готово: {req.title}",
               "done": f"Заявка «{req.title}» завершена",
               "rejected": f"Заявка «{req.title}» отклонена"}
     svc.add_notification(db, req.student_id, "request", titles[new_status], comment,
-                         f"/requests/{req.id}", important=new_status in ("ready", "rejected"))
+                         f"/requests/{req.id}", important=new_status in ("ready", "rejected", "clarify"))
     db.commit()
     return RedirectResponse(f"/staff/requests/{req.id}?ok=updated", status_code=303)
 
