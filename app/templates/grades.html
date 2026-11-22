@@ -80,7 +80,7 @@
   <ul class="exam-list">
     {% for e in exams %}
     <li class="exam exam-{{ e.kind }}">
-      <div class="exam-date"><b>{{ e.at.day }}</b><span>{{ e.at|ru_date|replace(e.at.day|string ~ " ", "") }}</span></div>
+      <div class="exam-date" title="{{ e.at|ru_date }}"><b>{{ e.at.day }}</b><span>{{ e.at|month_short }}</span></div>
       <div class="exam-body">
         <p class="exam-title">{{ e.title }}</p>
         <p class="muted small">{{ CONTROL_LABEL[e.kind] }} · {{ WEEKDAYS_SHORT[e.at.weekday()] }}, {{ "%02d:%02d"|format(e.at.hour, e.at.minute) }} · {{ e.room }} · {{ e.teacher }}</p>

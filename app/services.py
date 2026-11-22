@@ -56,6 +56,14 @@ def ru_date(d: date | datetime | None, weekday: bool = False, short: bool = Fals
     return s
 
 
+MONTHS_SHORT = ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"]
+
+
+def ru_month_short(d: date | datetime | None) -> str:
+    """Короткий месяц для плитки с датой: «янв», «дек» — помещается в 46 px при любой ширине шрифта."""
+    return MONTHS_SHORT[d.month - 1] if d else ""
+
+
 def ru_datetime(dt: datetime | None) -> str:
     if dt is None:
         return ""
@@ -104,6 +112,7 @@ def decimal(x) -> str:
 
 FILTERS = {
     "decimal": decimal,
+    "month_short": ru_month_short,
     "ru_date": ru_date,
     "ru_datetime": ru_datetime,
     "rel_day": rel_day,

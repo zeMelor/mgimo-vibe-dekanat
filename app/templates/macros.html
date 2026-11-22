@@ -88,7 +88,7 @@
 
 {% macro deadline_row(x) -%}
 <li class="dl{% if x.urgent %} dl-urgent{% endif %}">
-  <div class="dl-date"><b>{{ x.date.day }}</b><span>{{ x.date|ru_date|replace(x.date.day|string ~ " ", "") }}</span></div>
+  <div class="dl-date" title="{{ x.date|ru_date }}"><b>{{ x.date.day }}</b><span>{{ x.date|month_short }}</span></div>
   <div class="dl-body">
     <p class="dl-title">{% if x.link %}<a href="{{ x.link }}">{{ x.title }}</a>{% else %}{{ x.title }}{% endif %}</p>
     <p class="dl-meta">{{ x.kind_label }}{% if x.time %} · {{ x.time }}{% endif %}{% if x.note %} · {{ x.note }}{% endif %}</p>

@@ -111,8 +111,17 @@ b.new { color: var(--warn); font-weight: 600; }
   padding: 6px 16px; text-align: center; border-bottom: 1px solid var(--line);
 }
 .concept b { color: var(--accent); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; font-size: 11px; }
-.loadbar { position: fixed; top: 0; left: 0; height: 2px; width: 0; background: var(--accent); z-index: 100; }
-body.is-loading .loadbar { width: 85%; transition: width 3s cubic-bezier(.1, .7, .2, 1); }
+/* полоска загрузки появляется, только если страница грузится дольше 0,4 с — на быстрых переходах не мелькает */
+.loadbar { position: fixed; top: 0; left: 0; height: 2px; width: 0; opacity: 0; background: var(--accent); z-index: 100; pointer-events: none; }
+body.is-loading .loadbar { width: 85%; opacity: 1; transition: opacity .15s linear .4s, width 3s cubic-bezier(.1, .7, .2, 1) .4s; }
+
+/* плавная смена страниц вместо мигания (Chrome, Edge, Safari 18+); шапка и меню остаются на месте */
+@view-transition { navigation: auto; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .16s; }
+.topbar { view-transition-name: topbar; }
+.tabbar { view-transition-name: tabbar; }
+.sidebar { view-transition-name: sidebar; }
+@media (prefers-reduced-motion: reduce) { @view-transition { navigation: none; } }
 
 /* ---------- каркас ---------- */
 .app { min-height: 100vh; }
@@ -536,7 +545,7 @@ textarea.input { resize: vertical; min-height: 90px; }
 .dl:last-child, .exam:last-child { border-bottom: 0; }
 .dl-date, .exam-date { display: flex; flex-direction: column; align-items: center; border: 1px solid var(--line-strong); border-top: 3px solid var(--primary); border-radius: 3px; padding: 3px 0 4px; line-height: 1.1; background: var(--surface); }
 .dl-date b, .exam-date b { font-family: var(--serif); font-stretch: 80%; font-size: 18px; }
-.dl-date span, .exam-date span { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+.dl-date span, .exam-date span { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; }
 .dl-title, .exam-title { font-weight: 500; font-size: 14px; overflow-wrap: anywhere; }
 .dl-title a { color: var(--text); }
 .dl-meta { font-size: 12px; color: var(--muted); }
