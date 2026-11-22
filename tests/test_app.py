@@ -229,3 +229,12 @@ def test_pwa_files():
         assert r.status_code == 200 and "javascript" in r.headers["content-type"]
         assert r.headers["cache-control"] == "no-store"   # обновление service worker без задержек
         assert c.get("/static/offline.html").status_code == 200
+
+
+def test_theme_light_by_default_dark_by_choice(s1):
+    assert 'data-theme="light"' in s1.get("/").text
+    s1.cookies.set("theme", "dark")
+    assert 'data-theme="dark"' in s1.get("/").text
+    s1.cookies.set("theme", "<script>")       # чужое значение не попадает в разметку
+    assert 'data-theme="light"' in s1.get("/").text
+    s1.cookies.delete("theme")

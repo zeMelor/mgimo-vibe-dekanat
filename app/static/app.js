@@ -29,6 +29,15 @@
     startLoading();
   });
 
+  // Светлая или тёмная тема: выбор хранится в cookie, сервер сразу рисует нужную
+  document.addEventListener("click", function (e) {
+    if (!(e.target.closest && e.target.closest("[data-theme-toggle]"))) return;
+    var root = document.documentElement;
+    var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    document.cookie = "theme=" + next + "; Path=/; Max-Age=31536000; SameSite=Lax" + (location.protocol === "https:" ? "; Secure" : "");
+  });
+
   // Установка на главный экран (PWA)
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () { navigator.serviceWorker.register("/sw.js").catch(function () {}); });

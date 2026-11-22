@@ -37,35 +37,35 @@
   color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #090e18;
-    --surface: #131c2d;
-    --surface-2: #1a2539;
-    --text: #eef0f5;
-    --muted: #9ea7b8;
-    --line: #26334c;
-    --line-strong: #344563;
-    --primary: #8fb0f0;
-    --primary-2: #b3cbf6;
-    --primary-ink: #0a1020;
-    --primary-soft: #1a2846;
-    --accent: #e0b25a;
-    --accent-soft: #2e2512;
-    --good: #7fd0a1;
-    --good-soft: #13291f;
-    --warn: #e8b55e;
-    --warn-soft: #2e2413;
-    --bad: #f0928b;
-    --bad-soft: #341a1b;
-    --info: #92bdf0;
-    --info-soft: #14233a;
-    --neutral-soft: #212d44;
-    --nav-bg: #14306e;
-    --nav-ink: #ffffff;
-    --shadow: 0 1px 0 rgba(255, 255, 255, .03) inset, 0 8px 24px rgba(0, 0, 0, .35);
-    color-scheme: dark;
-  }
+/* Тёмная тема включается кнопкой (луна/солнце), а не настройкой системы: по умолчанию всегда светлая.
+   Спокойный графит с синими ссылками и золотыми акцентами. */
+:root[data-theme="dark"] {
+  --bg: #111318;
+  --surface: #1a1d24;
+  --surface-2: #21252d;
+  --text: #eceef2;
+  --muted: #a2a8b3;
+  --line: #2b3039;
+  --line-strong: #3a414d;
+  --primary: #93b4f2;
+  --primary-2: #b4cbf6;
+  --primary-ink: #10131a;
+  --primary-soft: #1f2a40;
+  --accent: #ddb05c;
+  --accent-soft: #2d2615;
+  --good: #82cfa2;
+  --good-soft: #16271e;
+  --warn: #e6b45e;
+  --warn-soft: #2c2414;
+  --bad: #ef948d;
+  --bad-soft: #331c1d;
+  --info: #95bdf0;
+  --info-soft: #172335;
+  --neutral-soft: #262b34;
+  --nav-bg: #171a21;
+  --nav-ink: #eceef2;
+  --shadow: 0 6px 20px rgba(0, 0, 0, .35);
+  color-scheme: dark;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -182,10 +182,22 @@ body.is-loading .loadbar { width: 85%; transition: width 3s cubic-bezier(.1, .7,
   padding: 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px; min-width: 0;
 }
 .card-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
-@media (prefers-color-scheme: dark) {
-  .card { border-color: var(--line-strong); background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 92%, #fff) 0, var(--surface) 64px); }
-  .sidebar { box-shadow: 1px 0 0 rgba(255, 255, 255, .06); }
-}
+[data-theme="dark"] .card { border-color: var(--line-strong); }
+[data-theme="dark"] .topbar, [data-theme="dark"] .sidebar { background: var(--nav-bg); }
+[data-theme="dark"] .sidebar { box-shadow: 1px 0 0 var(--line); }
+[data-theme="dark"] .page-login { background: var(--bg); }
+
+/* переключатель темы: в светлой показываем луну, в тёмной — солнце */
+.topbar-actions { display: flex; align-items: center; gap: 8px; }
+.topbar .theme-btn { width: 36px; height: 36px; background: transparent; color: var(--nav-ink); border-color: color-mix(in srgb, var(--nav-ink) 35%, transparent); cursor: pointer; }
+.side-theme { background: none; border: 0; width: 100%; font: inherit; cursor: pointer; text-align: left; }
+.i-sun, .t-light { display: none; }
+[data-theme="dark"] .i-sun, [data-theme="dark"] .t-light { display: inline; }
+[data-theme="dark"] .i-moon, [data-theme="dark"] .t-dark { display: none; }
+.side-theme .ic { display: none; }
+.side-theme .i-moon { display: inline-block; }
+[data-theme="dark"] .side-theme .i-moon { display: none; }
+[data-theme="dark"] .side-theme .i-sun { display: inline-block; }
 .card-h h2 { display: flex; align-items: center; gap: 8px; }
 .card-h h2 .ic { color: var(--accent); }
 .card-good { border-color: color-mix(in srgb, var(--good) 40%, var(--line)); }
@@ -560,19 +572,17 @@ textarea.input { resize: vertical; min-height: 90px; }
   .card-h { margin: -2px 0 2px; }
   .card-h h2 { font-size: 18px; }
   .grid-dash, .grid-2, .course-list { gap: 20px; }
-  /* приветствие на главной — тёмно-синий баннер с золотой кромкой */
+  /* приветствие на главной — светлая плашка с золотой кромкой сверху и тонким узором */
   .hello {
-    position: relative; overflow: hidden; padding: 24px 28px; border: 0; border-radius: 10px;
-    background: linear-gradient(110deg, var(--nav-bg) 0%, color-mix(in srgb, var(--nav-bg) 78%, #2f6fd6) 100%);
-    color: #fff; box-shadow: 0 10px 30px rgba(19, 48, 120, .18); border-bottom: 3px solid var(--accent);
+    position: relative; overflow: hidden; padding: 22px 26px; border: 1px solid var(--line); border-top: 3px solid var(--accent);
+    border-radius: 10px; background: linear-gradient(110deg, var(--surface) 35%, var(--primary-soft) 100%); box-shadow: var(--shadow);
   }
   .hello::after {
-    content: ""; position: absolute; right: -60px; top: -80px; width: 280px; height: 280px; border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, .12); box-shadow: 0 0 0 40px rgba(255, 255, 255, .03), 0 0 0 80px rgba(255, 255, 255, .02);
+    content: ""; position: absolute; right: -60px; top: -90px; width: 280px; height: 280px; border-radius: 50%;
+    border: 1px solid color-mix(in srgb, var(--primary) 16%, transparent);
+    box-shadow: 0 0 0 40px color-mix(in srgb, var(--primary) 4%, transparent), 0 0 0 80px color-mix(in srgb, var(--primary) 3%, transparent);
   }
-  .hello h1 { color: #fff; font-size: 32px; }
-  .hello .muted { color: rgba(255, 255, 255, .78); }
-  .hello-date { color: #f1cf8a; }
+  .hello h1 { font-size: 32px; }
   .grid-dash { align-items: start; }
   .course { padding: 0; }
   .page-h { padding-bottom: 16px; }

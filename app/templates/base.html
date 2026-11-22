@@ -1,5 +1,5 @@
 {% from "macros.html" import icon %}<!doctype html>
-<html lang="ru">
+<html lang="ru" data-theme="{{ theme|default('light') }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -12,8 +12,8 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Деканат">
-  <link rel="stylesheet" href="/static/style.css?v=4">
-  <script src="/static/app.js?v=3" defer></script>
+  <link rel="stylesheet" href="/static/style.css?v=5">
+  <script src="/static/app.js?v=4" defer></script>
 </head>
 <body class="{% block body_class %}{% endblock %}">
 <div class="loadbar" aria-hidden="true"></div>
@@ -50,6 +50,7 @@
         {% if href == "/notifications" and unread %}<span class="count">{{ unread }}</span>{% endif %}</a>
       {% endfor %}
     </nav>
+    <button class="side-link side-theme" type="button" data-theme-toggle>{{ icon("moon", "i-moon") }}{{ icon("sun", "i-sun") }}<span class="t-dark">Тёмная тема</span><span class="t-light">Светлая тема</span></button>
     <a class="side-user{% if path == '/profile' %} is-active{% endif %}" href="/profile">
       <span class="avatar">{{ user.initials }}</span>
       <span class="side-user-text"><b>{{ user.full_name.split()[0] }} {{ user.first_name }}</b>
@@ -60,7 +61,10 @@
   <div class="main">
     <header class="topbar">
       <a class="brand brand-sm" href="/"><img src="/static/logo.svg" alt="" width="28" height="28"><b>Цифровой деканат</b></a>
-      <a class="avatar avatar-sm" href="/profile" aria-label="Профиль">{{ user.initials }}</a>
+      <div class="topbar-actions">
+        <button class="icon-btn theme-btn" type="button" data-theme-toggle aria-label="Сменить тему">{{ icon("moon", "i-moon") }}{{ icon("sun", "i-sun") }}</button>
+        <a class="avatar avatar-sm" href="/profile" aria-label="Профиль">{{ user.initials }}</a>
+      </div>
     </header>
     <main class="content" id="content">
       {% block content %}{% endblock %}

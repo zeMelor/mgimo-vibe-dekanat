@@ -120,6 +120,7 @@ def unread_count(db: Session, user: m.User) -> int:
 def render(request: Request, name: str, db: Session | None = None, status_code: int = 200, **ctx):
     user = getattr(request.state, "user", None)
     base = dict(user=user, csrf=getattr(request.state, "csrf", ""), today=svc.today(),
+                theme="dark" if request.cookies.get("theme") == "dark" else "light",
                 now=svc.now(), path=request.url.path,
                 unread=unread_count(db, user) if (db is not None and user is not None) else 0)
     base.update(ctx)
