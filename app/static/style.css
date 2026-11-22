@@ -4,33 +4,33 @@
    Шрифты системные (без загрузки файлов), внешних библиотек нет. */
 
 :root {
-  --bg: #f4f1ea;
-  --surface: #fffdf8;
-  --surface-2: #f3efe6;
-  --text: #1b2333;
-  --muted: #646b78;
-  --line: #e3ddd1;
-  --line-strong: #cbc2b1;
-  --primary: #13306b;
-  --primary-2: #0c234f;
+  --bg: #edf1f8;
+  --surface: #ffffff;
+  --surface-2: #f3f6fb;
+  --text: #152036;
+  --muted: #586378;
+  --line: #dde4ef;
+  --line-strong: #c3cddd;
+  --primary: #1b4096;
+  --primary-2: #133279;
   --primary-ink: #ffffff;
-  --primary-soft: #e7ebf3;
-  --accent: #a27b35;
-  --accent-soft: #f4ecda;
-  --good: #2b6a48;
-  --good-soft: #e5efe7;
-  --warn: #8a5c0c;
-  --warn-soft: #f7eed9;
-  --bad: #9a2b2b;
-  --bad-soft: #f6e4e1;
-  --info: #2c5784;
-  --info-soft: #e6edf4;
-  --neutral-soft: #ece8df;
-  --nav-bg: #13306b;
-  --nav-ink: #f6f1e6;
+  --primary-soft: #e5ecfa;
+  --accent: #b7862a;
+  --accent-soft: #fbf0d9;
+  --good: #1f7a4d;
+  --good-soft: #e2f4ea;
+  --warn: #92600a;
+  --warn-soft: #fcf0d8;
+  --bad: #a8282b;
+  --bad-soft: #fce6e4;
+  --info: #23609e;
+  --info-soft: #e4eefb;
+  --neutral-soft: #e6ebf3;
+  --nav-bg: #173a8a;
+  --nav-ink: #ffffff;
   --radius: 8px;
   --radius-sm: 6px;
-  --shadow: 0 1px 0 rgba(27, 35, 51, .04);
+  --shadow: 0 1px 2px rgba(21, 32, 54, .05), 0 4px 14px rgba(21, 32, 54, .04);
   --tabbar-h: 62px;
   --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --serif: "PT Serif", Georgia, "Noto Serif", "Droid Serif", "Times New Roman", serif;
@@ -106,7 +106,7 @@ body.is-loading .loadbar { width: 85%; transition: width 3s cubic-bezier(.1, .7,
 .main { min-width: 0; padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 8px); }
 .topbar {
   position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between;
-  gap: 12px; padding: 10px 16px; background: var(--nav-bg); color: var(--nav-ink);
+  gap: 12px; padding: 10px 16px; background: linear-gradient(100deg, var(--nav-bg), color-mix(in srgb, var(--nav-bg) 82%, #2f6fd6)); color: var(--nav-ink);
   border-bottom: 2px solid var(--accent);
 }
 .content { padding: 18px 16px; max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
@@ -151,7 +151,7 @@ body.is-loading .loadbar { width: 85%; transition: width 3s cubic-bezier(.1, .7,
   .app { display: grid; grid-template-columns: 256px minmax(0, 1fr); }
   .sidebar {
     display: flex; flex-direction: column; gap: 24px; position: sticky; top: 0; height: 100vh;
-    padding: 22px 14px; background: var(--nav-bg); color: var(--nav-ink);
+    padding: 22px 14px; background: linear-gradient(180deg, var(--nav-bg), color-mix(in srgb, var(--nav-bg) 85%, #0b1f4d)); color: var(--nav-ink);
   }
   .sidebar .brand { padding: 0 8px 18px; border-bottom: 1px solid color-mix(in srgb, var(--nav-ink) 18%, transparent); }
   .side-nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
@@ -274,7 +274,7 @@ a.hint:hover span { text-decoration: underline; text-underline-offset: 3px; }
 .w-70{width:70%}.w-75{width:75%}.w-80{width:80%}.w-85{width:85%}.w-90{width:90%}.w-95{width:95%}.w-100{width:100%}
 
 /* ---------- вход ---------- */
-.page-login { background: var(--nav-bg); }
+.page-login { background: linear-gradient(160deg, var(--nav-bg), color-mix(in srgb, var(--nav-bg) 70%, #2f6fd6)); }
 .page-login .concept { background: transparent; color: color-mix(in srgb, var(--nav-ink) 70%, transparent); border-bottom-color: color-mix(in srgb, var(--nav-ink) 15%, transparent); }
 .login { min-height: calc(100vh - 40px); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px 16px; gap: 16px; }
 .login-card {
