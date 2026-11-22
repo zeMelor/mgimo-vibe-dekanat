@@ -339,3 +339,16 @@ def test_retake_dashboard_ready_document(s2):
     assert match and "Ближайшая пересдача" in home
     assert match[1] + "/document" in s2.get(match[1]).text
     assert s2.get(match[1] + "/document").status_code == 200
+
+
+def test_whatif_calculator(s1):
+    html = s1.get("/grades").text
+    blocks = re.findall(r'<div class="whatif" data-whatif ([^>]*)>(.*?)<p class="whatif-res"', html, re.S)
+    assert len(blocks) == 7  # у каждой дисциплины student1 ещё есть несданные точки
+    # «Теория международных отношений»: 22 из 25 сданных, впереди 35 баллов, до допуска 8
+    attrs, body = next(b for b in blocks if "Теория международных отношений" in b[1])
+    assert 'data-earned="22"' in attrs and 'data-total="60"' in attrs and 'data-admission="30"' in attrs
+    assert 'hidden' in attrs  # без JS блок не показывается
+    assert 'max="35"' in body and 'value="31"' in body  # по умолчанию — в нынешнем темпе
+    assert 'data-whatif-set="8"' in body and 'data-whatif-set="35"' in body
+    assert 'style=' not in html  # строгая CSP: никаких inline-стилей

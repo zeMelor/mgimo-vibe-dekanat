@@ -65,6 +65,28 @@
             <b>{% if a.points is none %}<span class="muted">— / {{ a.max_points }}</span>{% else %}{{ a.points }} / {{ a.max_points }}{% endif %}</b></li>
           {% endfor %}
         </ul>
+        {% if r.remaining > 0 %}
+        {% set pace = ((r.pct * r.remaining)|round|int) if r.pct is not none else None %}
+        {% set start = pace if pace is not none else (r.need if r.need <= r.remaining else r.remaining) %}
+        <div class="whatif" data-whatif data-earned="{{ r.earned }}" data-total="{{ r.total }}" data-admission="{{ ADMISSION }}" data-credit="{{ 1 if r.course.control == 'credit' else 0 }}" hidden>
+          <div class="whatif-h">
+            <b>{{ icon("spark") }}Что если</b>
+            <span>Сколько наберёте за оставшиеся точки</span>
+          </div>
+          <div class="whatif-ctl">
+            <input class="whatif-range" id="wi-{{ r.course.id }}" type="range" min="0" max="{{ r.remaining }}" step="1" value="{{ start }}"
+                   aria-label="Баллы за оставшиеся точки по дисциплине «{{ r.course.name }}»">
+            <output class="whatif-val" for="wi-{{ r.course.id }}"><b data-whatif-pick>{{ start }}</b> из {{ r.remaining }}</output>
+          </div>
+          <div class="whatif-chips">
+            {% if 0 < r.need <= r.remaining %}<button class="whatif-chip" type="button" data-whatif-set="{{ r.need }}" title="Минимум для допуска">До допуска</button>{% endif %}
+            {% if pace is not none %}<button class="whatif-chip" type="button" data-whatif-set="{{ pace }}" title="В нынешнем темпе">Как сейчас</button>{% endif %}
+            <button class="whatif-chip" type="button" data-whatif-set="{{ r.remaining }}" title="Все оставшиеся точки на максимум">Максимум</button>
+          </div>
+          <div class="gb-bar whatif-bar" aria-hidden="true"><span class="whatif-plus w-0"></span><span class="gb-fill {{ r.w_earned }}"></span><span class="gb-mark {{ r.w_admission }}"></span></div>
+          <p class="whatif-res" data-whatif-res aria-live="polite"></p>
+        </div>
+        {% endif %}
       </div>
     </details>
     {% endfor %}
