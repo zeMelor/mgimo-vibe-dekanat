@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex">
   <title>{{ req.title }} № {{ req.id }} · образец</title>
-  <link rel="stylesheet" href="/static/style.css?v=11">
+  <link rel="stylesheet" href="/static/style.css?v=12">
   <script src="/static/app.js?v=6" defer></script>
 </head>
 <body class="doc-body">
@@ -21,7 +21,7 @@
       <div><b>Цифровой деканат (концепт)</b><br>{{ s.group.program.faculty.name }}</div>
     </header>
     <h1 class="doc-title">{{ req.title|upper }}</h1>
-    <p class="doc-num">№ {{ req.id }}-{{ req.created_at.year }} от {{ req.updated_at|ru_date }} {{ req.updated_at.year }} г.</p>
+    <p class="doc-num">№ {{ req.id }}-{{ req.created_at.year }} {% if req.issued_at %}от {{ req.issued_at|ru_date }} {{ req.issued_at.year }} г.{% else %}· дата выдачи не сохранена{% endif %}</p>
     <p>Выдана <b>{{ s.full_name }}</b> в том, что он(а) является студентом(кой) {{ s.group.course }} курса
       {{ s.study_form }} формы обучения, группа {{ s.group.name }}, направление подготовки
       {{ s.group.program.code }} «{{ s.group.program.name }}», основа обучения — {{ s.funding }}.</p>
@@ -30,7 +30,7 @@
     {% elif req.purpose %}<p>Справка выдана для предоставления: {{ req.purpose }}.</p>{% endif %}
     <div class="doc-qr">
       {{ qr|safe }}
-      <p><b>Проверка подлинности.</b> Наведите камеру телефона на код или откройте ссылку:<br><span class="doc-qr-url">{{ check_url }}</span></p>
+      <p><b>Проверка подлинности.</b> Наведите камеру телефона на код или откройте ссылку:<br><a class="doc-qr-url" href="/check/{{ check.token }}">Проверить документ</a><span class="doc-qr-url print-check-url">{{ check_url }}</span></p>
     </div>
     <footer class="doc-foot">
       <div>Специалист учебного офиса<br><span class="muted">подпись (образец)</span></div>

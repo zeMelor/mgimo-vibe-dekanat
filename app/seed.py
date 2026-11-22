@@ -16,7 +16,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from . import models as m
-from .services import add_notification, default_week, now, today
+from .services import add_notification, default_week, moved_lesson_link, now, today
 
 DEMO_HASHES = {
     "student1": "$2b$12$AGnWjfgp60d8RncsM8yt1OWWMoaIHTHYPj/0xph3lc.Fmev2k/oii",
@@ -168,8 +168,12 @@ def seed(db: Session) -> None:
         (g2, d(8), 1, "teacher", dict(new_teacher="Демьянова С. Л.", note="Замена преподавателя")),
         (g2, d(15), 3, "room", dict(new_room="ауд. 2210", note="Временная замена аудитории")),
     ]
+    moves = {}
     for group, day, pair, kind, extra in changes:
-        db.add(m.ScheduleChange(group_id=group.id, date=day, pair=pair, kind=kind, **extra))
+        change = m.ScheduleChange(group_id=group.id, date=day, pair=pair, kind=kind, **extra)
+        db.add(change)
+        if kind == "moved":
+            moves[group.id, day, pair] = change
 
     # ------------------------------------------------------------ дисциплины и баллы
     def courses(group, rows):
@@ -336,7 +340,7 @@ def seed(db: Session) -> None:
     note(s1, "schedule", "Аудитория изменена: Теория международных отношений",
          f"Лекция в {d(0):%d.%m} пройдёт в ауд. 1215 вместо 1012.", f"/schedule?week={M}", 0.4)
     note(s1, "schedule", "Перенос: Испанский язык",
-         f"Пара {d(1):%d.%m} переносится на {d(4):%d.%m}, 3 пара.", f"/schedule?week={M}", 0.3)
+         f"Пара {d(1):%d.%m} переносится на {d(4):%d.%m}, 3 пара.", moved_lesson_link(d(4), moves[g1.id, d(1), 3].id), 0.3)
     note(s1, "schedule", "Замена преподавателя: Статистика",
          f"Лекцию {d(3):%d.%m} проведёт Полякова Н. Ю.", f"/schedule?week={M}", 0.2)
     note(s1, "request", "Заявка «Справка для визы» взята в работу",
@@ -351,7 +355,7 @@ def seed(db: Session) -> None:
     note(s2, "schedule", "Отменён семинар по эконометрике",
          f"Семинар {d(0):%d.%m} (4 пара) отменён.", f"/schedule?week={M}", 0.4)
     note(s2, "schedule", "Перенос: Деловой английский",
-         f"Пара {d(4):%d.%m} переносится на субботу {d(5):%d.%m}, 2 пара.", f"/schedule?week={M}", 0.3)
+         f"Пара {d(4):%d.%m} переносится на субботу {d(5):%d.%m}, 2 пара.", moved_lesson_link(d(5), moves[g2.id, d(4), 1].id), 0.3)
     note(s2, "request", "Направление на пересдачу готово",
          "Откройте его в карточке заявки или заберите в каб. 105.", "", 3.1)
     note(s2, "request", "Заявление на материальную помощь отклонено",

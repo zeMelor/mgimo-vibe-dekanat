@@ -205,6 +205,12 @@ class StudentRequest(Base):
     )
 
 
+    @property
+    def issued_at(self) -> datetime | None:
+        """Историческим заявкам без события выдачи не приписываем выдуманную дату."""
+        return next((event.created_at for event in self.events if event.status == "ready"), None)
+
+
 class RetakeDirection(Base):
     """Контекст новой заявки. Старые заявки продолжают работать без этой записи."""
 

@@ -53,8 +53,8 @@
 </div>
 {%- endmacro %}
 
-{% macro lesson(e, compact=False) -%}
-<article class="lesson lesson-{{ e.status }}{% if e.state %} lesson-{{ e.state }}{% endif %}">
+{% macro lesson(e, compact=False, anchor=False) -%}
+<article {% if anchor and e.change_id is defined %}id="move-{{ e.change_id }}" tabindex="-1" {% endif %}class="lesson lesson-{{ e.status }}{% if e.state %} lesson-{{ e.state }}{% endif %}">
   <div class="lesson-time">
     <span class="t-start">{{ e.start }}</span>
     <span class="t-end">{{ e.end }}</span>

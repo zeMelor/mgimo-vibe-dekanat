@@ -480,7 +480,7 @@ def request_document(request: Request, request_id: int, user: m.User = Depends(c
     scheme = "http" if host.split(":")[0] in ("localhost", "127.0.0.1", "testserver") else "https"
     check_url = f"{scheme}://{host}/check/{check.token}"
     qr = segno.make(check_url, error="m").svg_inline(scale=3, border=0, dark="#111111")
-    return render(request, "request_document.html", db, req=req, s=req.student, check_url=check_url, qr=qr)
+    return render(request, "request_document.html", db, req=req, s=req.student, check=check, check_url=check_url, qr=qr)
 
 
 @app.get("/check/{token}")
@@ -532,7 +532,7 @@ def notification_open(note_id: int, user: m.User = Depends(current_user), db: Se
     if note.read_at is None:
         note.read_at = svc.now()
         db.commit()
-    return RedirectResponse(safe_next(note.link) if note.link else "/notifications", status_code=303)
+    return RedirectResponse(safe_next(svc.notification_link(db, note, user)) if note.link else "/notifications", status_code=303)
 
 
 # ---------------------------------------------------------------- профиль

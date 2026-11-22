@@ -65,6 +65,16 @@
             <b>{% if a.points is none %}<span class="muted">— / {{ a.max_points }}</span>{% else %}{{ a.points }} / {{ a.max_points }}{% endif %}</b></li>
           {% endfor %}
         </ul>
+        {% if r.need and r.admission_plan %}
+        <div class="admission-plan">
+          <b>Как набрать {{ r.need }} б. до допуска</b>
+          <p class="muted small">Один вариант по срокам оставшихся работ</p>
+          <ul class="kt-list">
+            {% for a, take in r.admission_plan %}<li><span>{{ a.title }}<small class="muted"> · {% if a.due %}до {{ a.due|ru_date }}{% else %}срок не указан{% endif %}</small></span><b>{{ take }} из {{ a.max_points }} б.</b></li>{% endfor %}
+          </ul>
+          {% if r.uncovered %}<p>Даже с максимумом не хватит {{ r.uncovered }} б. Уточните у преподавателя условия отработки.</p>{% endif %}
+        </div>
+        {% elif r.need and not r.remaining %}<p>Оставшихся работ нет. До допуска {{ r.need }} б. Уточните у преподавателя условия отработки.</p>{% endif %}
         {% if r.remaining > 0 %}
         {% set pace = ((r.pct * r.remaining)|round|int) if r.pct is not none else None %}
         {% set start = pace if pace is not none else (r.need if r.need <= r.remaining else r.remaining) %}

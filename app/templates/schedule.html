@@ -63,7 +63,7 @@
       {% if d.date == today %}{{ badge("Сегодня", "primary") }}{% elif d.changes %}{{ badge(d.changes ~ " " ~ plural(d.changes, "изменение", "изменения", "изменений"), "warn") }}{% endif %}
     </div>
     {% if d.lessons %}
-      <div class="lessons">{% for e in d.lessons %}{{ lesson(e) }}{% endfor %}</div>
+      <div class="lessons">{% for e in d.lessons %}{{ lesson(e, anchor=True) }}{% endfor %}</div>
     {% else %}
       <p class="day-empty">{{ icon("coffee") }}Занятий нет</p>
     {% endif %}

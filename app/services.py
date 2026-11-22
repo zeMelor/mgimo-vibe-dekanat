@@ -5,6 +5,7 @@
 """
 from __future__ import annotations
 
+import re
 import secrets
 from collections import defaultdict
 from datetime import date, datetime, timedelta
@@ -235,7 +236,7 @@ def build_day(db: Session, group_id: int | None, day: date) -> list[dict]:
             if src:
                 out.append(dict(pair=c.new_pair, subject=src.subject, kind=src.kind,
                                 room=c.new_room or src.room, teacher=src.teacher,
-                                status="moved_in", note=c.note, old_room="", old_teacher="",
+                                status="moved_in", change_id=c.id, note=c.note, old_room="", old_teacher="",
                                 moved_to=None, moved_from=(c.date, c.pair)))
 
     order = {"cancelled": 1, "moved_out": 1}
@@ -274,6 +275,38 @@ def build_week(db: Session, group_id: int | None, monday: date) -> list[dict]:
     return days
 
 
+def moved_lesson_link(day: date, change_id: int) -> str:
+    return f"/schedule?week={week_start(day)}#move-{change_id}"
+
+
+def notification_link(db: Session, note: m.Notification, user: m.User) -> str:
+    """У старых уведомлений была лишь ссылка на неделю. Уточняем только точное совпадение."""
+    if note.kind != "schedule" or not note.title.startswith("Перенос: ") or not user.group_id:
+        return note.link
+    week = re.fullmatch(r"/schedule\?week=(\d{4}-\d{2}-\d{2})", note.link or "")
+    body = re.fullmatch(r"Пара (\d\d\.\d\d) переносится на (?:[а-яё]+ )?(\d\d\.\d\d), (\d+) пара\.", note.body)
+    if not week or not body:
+        return note.link
+    try:
+        monday = date.fromisoformat(week[1])
+    except ValueError:
+        return note.link
+    candidates = db.scalars(select(m.ScheduleChange).where(
+        m.ScheduleChange.group_id == user.group_id, m.ScheduleChange.kind == "moved",
+        m.ScheduleChange.date.between(monday, monday + timedelta(days=6)),
+        m.ScheduleChange.new_pair == int(body[3]))).all()
+    matches = []
+    for change in candidates:
+        if not change.new_date or change.date.strftime("%d.%m") != body[1] or change.new_date.strftime("%d.%m") != body[2]:
+            continue
+        items = db.scalars(select(m.ScheduleItem).where(
+            m.ScheduleItem.group_id == user.group_id, m.ScheduleItem.weekday == change.date.weekday(),
+            m.ScheduleItem.pair == change.pair, m.ScheduleItem.parity.in_(("all", parity(change.date))))).all()
+        if len(items) == 1 and items[0].subject == note.title.removeprefix("Перенос: "):
+            matches.append(change)
+    return moved_lesson_link(matches[0].new_date, matches[0].id) if len(matches) == 1 else note.link
+
+
 def next_study_day(db: Session, group_id: int | None, after: date, horizon: int = 10):
     for i in range(1, horizon + 1):
         d = after + timedelta(days=i)
@@ -309,7 +342,7 @@ def course_overview(course: m.Course, items: list[m.Assessment]) -> dict:
     earned = sum(a.points for a in graded)
     so_far = sum(a.max_points for a in graded)
     total = sum(a.max_points for a in items) or SEMESTER_MAX
-    remaining = total - so_far
+    remaining = sum(a.max_points for a in items if a.points is None)
     pct = earned / so_far if so_far else None
     need = max(0, ADMISSION - earned)
     if pct is None:
@@ -331,7 +364,17 @@ def course_overview(course: m.Course, items: list[m.Assessment]) -> dict:
         advice = ("Допуск уже набран. " if not need else f"До допуска {need} б. ") + \
             "Держите темп — так выходит «отлично»."
     upcoming = sorted((a for a in items if a.points is None and a.due), key=lambda a: a.due)
-    return dict(course=course, kts=items, earned=earned, so_far=so_far, total=total,
+    # Один возможный набор баллов в порядке сроков; работа без даты идёт последней.
+    candidates = sorted((a for a in items if a.points is None),
+                        key=lambda a: (a.due or date.max, a.id or 0))
+    plan = []
+    gap = need
+    for assessment in candidates:
+        take = min(gap, assessment.max_points)
+        if take > 0:
+            plan.append((assessment, take))
+            gap -= take
+    return dict(course=course, kts=items, admission_plan=plan, uncovered=gap, earned=earned, so_far=so_far, total=total,
                 remaining=remaining, pct=pct, need=need, status=status, label=label,
                 advice=advice, next_item=upcoming[0] if upcoming else None,
                 w_earned=width_class(earned, total), w_so_far=width_class(so_far, total),

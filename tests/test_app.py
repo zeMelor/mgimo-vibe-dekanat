@@ -393,3 +393,66 @@ def test_whatsnew_and_session_countdown(s1, staff):
     assert 'data-whatsnew="1"' in home and "Новое в кабинете" in home
     assert 'href="/grades#current"' in home and 'href="/requests"' in home
     assert "7 испытаний · первое через" in s1.get("/grades").text  # 9 строк сессии, из них 2 консультации
+
+
+def test_document_keeps_issuance_date_after_completion(s1, staff, monkeypatch):
+    from datetime import datetime
+    from app import services
+
+    page = s1.get("/requests/new?type=study")
+    result = s1.post("/requests/new", data={"type_code": "study", "purpose": "Учебная проверка",
+                     "delivery": "electronic", "csrf": csrf_of(page.text)}, follow_redirects=False)
+    rid = int(result.headers["location"].split("/")[2].split("?")[0])
+    path = f"/staff/requests/{rid}"
+    form = csrf_of(staff.get(path).text)
+    for status, moment in [("ready", datetime(2026, 11, 23, 23, 59)), ("done", datetime(2026, 11, 24, 0, 1))]:
+        monkeypatch.setattr(services, "now", lambda: moment)
+        assert staff.post(path, data={"csrf": form, "new_status": status}, follow_redirects=False).status_code == 303
+        doc = s1.get(f"/requests/{rid}/document").text
+        link = re.search(r'href="(/check/[^"]+)"', doc)[1]
+        if status == "ready":
+            issued_link = link
+        assert link == issued_link
+        assert "23 ноября 2026" in doc and "23 ноября 2026" in TestClient(app).get(link).text
+
+
+def test_admission_plan_accounts_for_ungraded_work():
+    from datetime import date
+    from app import models as m, services
+
+    course = m.Course(name="Пример")
+    scored = m.Assessment(title="Сдано", max_points=30, points=22)
+    first = m.Assessment(title="Эссе", max_points=5, due=date(2026, 11, 26))
+    second = m.Assessment(title="Доклад", max_points=15)
+    result = services.course_overview(course, [second, scored, first])
+    assert result["admission_plan"] == [(first, 5), (second, 3)] and result["uncovered"] == 0
+    result = services.course_overview(course, [scored, first])
+    assert result["uncovered"] == 3
+    for items in ([scored], []):
+        result = services.course_overview(course, items)
+        assert result["admission_plan"] == [] and result["remaining"] == 0
+    assert m.StudentRequest().issued_at is None
+
+
+def test_move_notification_targets_unique_lesson(s1):
+    from sqlalchemy import select
+    from app import models as m, services
+    from app.db import SessionLocal
+
+    with SessionLocal() as db:
+        user = db.scalar(select(m.User).where(m.User.login == "student1"))
+        note = db.scalar(select(m.Notification).where(m.Notification.user_id == user.id,
+                                                      m.Notification.title == "Перенос: Испанский язык"))
+        response = s1.get(f"/notifications/{note.id}", follow_redirects=False)
+        assert response.status_code == 303 and response.headers["location"] == note.link
+        path, anchor = note.link.split("#")
+        html = s1.get(path).text
+        assert re.search(fr'id="{anchor}".*?lesson-moved_in.*?Испанский язык', html, re.S)
+        note.link = path  # ссылка в ранее созданных базах
+        assert services.notification_link(db, note, user) == f"{path}#{anchor}"
+        original = db.get(m.ScheduleChange, int(anchor.removeprefix("move-")))
+        db.add(m.ScheduleChange(group_id=user.group_id, date=original.date, pair=original.pair,
+                                kind="moved", new_date=original.new_date, new_pair=original.new_pair))
+        db.flush()
+        assert services.notification_link(db, note, user) == path
+        db.rollback()
