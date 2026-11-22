@@ -213,6 +213,14 @@ class RetakeDirection(Base):
     request_id: Mapped[int] = mapped_column(ForeignKey("requests.id"), unique=True)
 
 
+class DocumentCheck(Base):
+    """Случайная ссылка из QR-кода электронной справки: по ней любой проверит подлинность."""
+
+    __tablename__ = "document_checks"
+    request_id: Mapped[int] = mapped_column(ForeignKey("requests.id"), primary_key=True)
+    token: Mapped[str] = mapped_column(String(40), unique=True, index=True)
+
+
 class RequestEvent(Base):
     __tablename__ = "request_events"
     id: Mapped[int] = mapped_column(primary_key=True)

@@ -352,3 +352,17 @@ def test_whatif_calculator(s1):
     assert 'max="35"' in body and 'value="31"' in body  # по умолчанию — в нынешнем темпе
     assert 'data-whatif-set="8"' in body and 'data-whatif-set="35"' in body
     assert 'style=' not in html  # строгая CSP: никаких inline-стилей
+
+
+def test_document_qr_check(s2):
+    # у student2 готово электронное направление на пересдачу
+    rid = next(i for i in request_ids(s2) if "/document" in s2.get(f"/requests/{i}").text)
+    doc = s2.get(f"/requests/{rid}/document").text
+    assert '<svg' in doc and 'class="segno"' in doc and 'style=' not in doc
+    token = re.search(r"/check/([A-Za-z0-9_-]+)", doc).group(1)
+    assert token in s2.get(f"/requests/{rid}/document").text  # ссылка не меняется
+    page = TestClient(app).get(f"/check/{token}")  # без входа
+    assert page.status_code == 200
+    assert "Документ подлинный" in page.text and "Ласточкин Т. Р." in page.text
+    assert "Тимур" not in page.text and "24-1183" not in page.text  # минимум данных
+    assert TestClient(app).get("/check/not-a-real-token").status_code == 404

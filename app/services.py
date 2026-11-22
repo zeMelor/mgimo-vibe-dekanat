@@ -5,6 +5,7 @@
 """
 from __future__ import annotations
 
+import secrets
 from collections import defaultdict
 from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
@@ -96,6 +97,26 @@ def days_left(d: date | datetime) -> int:
     if isinstance(d, datetime):
         d = d.date()
     return (d - today()).days
+
+
+def short_name(full_name: str) -> str:
+    """«Ласточкин Тимур Ринатович» → «Ласточкин Т. Р.»: на публичной странице проверки — минимум данных."""
+    parts = full_name.split()
+    return " ".join(parts[:1] + [p[0] + "." for p in parts[1:]])
+
+
+def document_check(db: Session, req: m.StudentRequest) -> m.DocumentCheck:
+    """Ссылка для QR-кода. Создаётся при первом открытии справки, дальше не меняется."""
+    check = db.get(m.DocumentCheck, req.id)
+    if check is None:
+        check = m.DocumentCheck(request_id=req.id, token=secrets.token_urlsafe(16))
+        db.add(check)
+        try:
+            db.commit()
+        except Exception:
+            db.rollback()
+            check = db.get(m.DocumentCheck, req.id)
+    return check
 
 
 def width_class(part: float, total: float) -> str:

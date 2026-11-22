@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex">
   <title>{{ req.title }} № {{ req.id }} · образец</title>
-  <link rel="stylesheet" href="/static/style.css?v=9">
+  <link rel="stylesheet" href="/static/style.css?v=10">
   <script src="/static/app.js?v=5" defer></script>
 </head>
 <body class="doc-body">
@@ -28,6 +28,10 @@
     <p>Номер зачётной книжки: {{ s.record_book }}. Год поступления: {{ s.enrolled_year }}.</p>
     {% if req.type_code == "retake" %}<p>Направляется на пересдачу по дисциплине «{{ req.purpose }}».</p>
     {% elif req.purpose %}<p>Справка выдана для предоставления: {{ req.purpose }}.</p>{% endif %}
+    <div class="doc-qr">
+      {{ qr|safe }}
+      <p><b>Проверка подлинности.</b> Наведите камеру телефона на код или откройте ссылку:<br><span class="doc-qr-url">{{ check_url }}</span></p>
+    </div>
     <footer class="doc-foot">
       <div>Специалист учебного офиса<br><span class="muted">подпись (образец)</span></div>
       <div class="doc-stamp">ОБРАЗЕЦ<br>без печати</div>

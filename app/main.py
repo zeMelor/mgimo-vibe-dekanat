@@ -13,6 +13,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 from urllib.parse import quote, urlparse
 
+import segno
 from fastapi import Depends, FastAPI, Form, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, PlainTextResponse, RedirectResponse, Response
@@ -474,7 +475,24 @@ def request_document(request: Request, request_id: int, user: m.User = Depends(c
     req = own_request(db, user, request_id)
     if req.status not in ("ready", "done") or req.delivery != "electronic":
         raise HTTPException(status_code=404)
-    return render(request, "request_document.html", db, req=req, s=req.student)
+    check = svc.document_check(db, req)
+    host = request.headers.get("host", "")
+    scheme = "http" if host.split(":")[0] in ("localhost", "127.0.0.1", "testserver") else "https"
+    check_url = f"{scheme}://{host}/check/{check.token}"
+    qr = segno.make(check_url, error="m").svg_inline(scale=3, border=0, dark="#111111")
+    return render(request, "request_document.html", db, req=req, s=req.student, check_url=check_url, qr=qr)
+
+
+@app.get("/check/{token}")
+def document_check_page(request: Request, token: str, db: Session = Depends(get_db)):
+    """Публичная проверка подлинности справки по QR-коду. Вход не нужен, данных — минимум."""
+    check = db.scalar(select(m.DocumentCheck).where(m.DocumentCheck.token == token)) if len(token) <= 40 else None
+    if check is None:
+        raise HTTPException(status_code=404)
+    req = db.get(m.StudentRequest, check.request_id)
+    valid = req.status in ("ready", "done") and req.delivery == "electronic"
+    return render(request, "check.html", req=req, valid=valid, holder=svc.short_name(req.student.full_name),
+                  faculty=req.student.group.program.faculty.name)
 
 
 # ---------------------------------------------------------------- уведомления

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon %}
+{% block title %}Проверка справки{% endblock %}
+{% block body_class %}page-login{% endblock %}
+{% block guest %}
+<main class="login">
+  <section class="login-card check-card">
+    <div class="login-brand">
+      <img src="/static/logo.svg" alt="" width="44" height="44">
+      <div><h1>Проверка документа</h1><p>Цифровой деканат · электронные справки</p></div>
+    </div>
+
+    {% if valid %}
+    <div class="alert alert-good">{{ icon("shield") }}<span><b>Документ подлинный.</b> Он выдан через «Цифровой деканат», данные совпадают с базой.</span></div>
+    {% else %}
+    <div class="alert alert-bad" role="alert">{{ icon("alert") }}<span><b>Документ недействителен.</b> Заявку отозвали или справка ещё не выдана.</span></div>
+    {% endif %}
+
+    <dl class="check-list">
+      <div><dt>Документ</dt><dd>{{ req.title }}</dd></div>
+      <div><dt>Номер</dt><dd>№ {{ req.id }}-{{ req.created_at.year }}</dd></div>
+      <div><dt>Дата выдачи</dt><dd>{{ req.updated_at|ru_date }} {{ req.updated_at.year }} г.</dd></div>
+      <div><dt>Кому выдан</dt><dd>{{ holder }}</dd></div>
+      <div><dt>Факультет</dt><dd>{{ faculty }}</dd></div>
+    </dl>
+
+    <p class="muted small">Здесь только то, что нужно для проверки: без зачётки, контактов и оценок. Учебный образец для конкурса, все данные вымышлены.</p>
+  </section>
+</main>
+{% endblock %}
