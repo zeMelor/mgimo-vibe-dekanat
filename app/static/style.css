@@ -3,6 +3,19 @@
    Mobile-first: базовые правила для телефона от 360 px, медиазапросы расширяют раскладку.
    Шрифты системные (без загрузки файлов), внешних библиотек нет. */
 
+/* Шрифт Open Sans (SIL Open Font License 1.1, файлы лежат локально в /static/fonts, без внешних CDN).
+   Один вариативный файл на алфавит: насыщенность 300–800 и ширина 75–100% — узкий жирный для заголовков. */
+@font-face {
+  font-family: "Open Sans"; font-style: normal; font-display: swap; font-weight: 300 800; font-stretch: 75% 100%;
+  src: url("/static/fonts/open-sans-cyrillic-wdth-normal.woff2") format("woff2");
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: "Open Sans"; font-style: normal; font-display: swap; font-weight: 300 800; font-stretch: 75% 100%;
+  src: url("/static/fonts/open-sans-latin-wdth-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 :root {
   --bg: #edf1f8;
   --surface: #ffffff;
@@ -32,8 +45,8 @@
   --radius-sm: 6px;
   --shadow: 0 1px 2px rgba(21, 32, 54, .05), 0 4px 14px rgba(21, 32, 54, .04);
   --tabbar-h: 62px;
-  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --serif: "PT Serif", Georgia, "Noto Serif", "Droid Serif", "Times New Roman", serif;
+  --font: "Open Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --serif: "Open Sans", "Segoe UI", Roboto, Arial, sans-serif;   /* заголовки и цифры: узкий жирный Open Sans */
   color-scheme: light;
 }
 
@@ -72,11 +85,11 @@
 [hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; scroll-padding-top: 72px; }
 body {
-  margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 var(--font);
+  margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 var(--font); font-stretch: 100%;
   min-width: 320px; overflow-x: hidden;
 }
 h1, h2, h3, p { margin: 0; }
-h1, h2, h3 { font-family: var(--serif); font-weight: 700; letter-spacing: 0; }
+h1, h2, h3 { font-family: var(--serif); font-stretch: 80%; font-weight: 700; letter-spacing: -.005em; }
 h1 { font-size: 26px; line-height: 1.2; }
 h2 { font-size: 17px; line-height: 1.3; }
 h3 { font-size: 16px; line-height: 1.3; }
@@ -115,13 +128,13 @@ body.is-loading .loadbar { width: 85%; transition: width 3s cubic-bezier(.1, .7,
 
 .brand { display: flex; align-items: center; gap: 10px; }
 .brand span { display: flex; flex-direction: column; line-height: 1.15; }
-.brand b { font-family: var(--serif); font-weight: 700; }
+.brand b { font-family: var(--serif); font-stretch: 80%; font-weight: 700; }
 .brand small { opacity: .7; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
 .brand-sm b { font-size: 17px; }
 
 .avatar {
   display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 50%;
-  background: var(--primary); color: var(--primary-ink); font-family: var(--serif); font-weight: 700;
+  background: var(--primary); color: var(--primary-ink); font-family: var(--serif); font-stretch: 80%; font-weight: 700;
   font-size: 14px; flex: none; letter-spacing: .02em;
 }
 .topbar .avatar { background: transparent; color: var(--nav-ink); border: 1px solid color-mix(in srgb, var(--nav-ink) 45%, transparent); }
@@ -135,7 +148,7 @@ body.is-loading .loadbar { width: 85%; transition: width 3s cubic-bezier(.1, .7,
 }
 .tab {
   position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
-  color: var(--muted); font-size: 10.5px; min-width: 0;
+  color: var(--muted); font-size: 10.5px; min-width: 0; font-stretch: 82%;
 }
 .tab.is-active { color: var(--primary); font-weight: 600; }
 .tab.is-active::before { content: ""; position: absolute; top: -1px; left: 22%; right: 22%; height: 2px; background: var(--accent); }
@@ -293,7 +306,7 @@ a.hint:hover span { text-decoration: underline; text-underline-offset: 3px; }
 .empty { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 18px 8px; }
 .empty-ic { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; border: 1px solid var(--line-strong); color: var(--accent); margin-bottom: 4px; }
 .empty-ic .ic { width: 24px; height: 24px; }
-.empty-title { font-family: var(--serif); font-weight: 700; font-size: 16px; }
+.empty-title { font-family: var(--serif); font-stretch: 80%; font-weight: 700; font-size: 16px; }
 .empty-text { color: var(--muted); font-size: 14px; max-width: 360px; }
 .empty .btn { margin-top: 8px; }
 
@@ -351,7 +364,7 @@ textarea.input { resize: vertical; min-height: 90px; }
 
 /* сводка «как у меня дела»: вывод крупно, цифры строкой через вертикальные линейки */
 .status-card { position: relative; }
-.status-head { font-family: var(--serif); font-size: 21px; font-weight: 700; line-height: 1.25; }
+.status-head { font-family: var(--serif); font-stretch: 80%; font-size: 21px; font-weight: 700; line-height: 1.25; }
 .status-head::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--muted); margin: 0 9px 0 0; vertical-align: .18em; }
 .tone-good .status-head::before { background: var(--good); }
 .tone-warn .status-head::before { background: var(--warn); }
@@ -362,7 +375,7 @@ textarea.input { resize: vertical; min-height: 90px; }
 .stat { padding: 12px 10px 10px; display: flex; flex-direction: column; gap: 2px; }
 .stat + .stat { border-left: 1px solid var(--line); }
 .stat:first-child { padding-left: 0; }
-.stat b { font-family: var(--serif); font-size: 26px; font-weight: 700; line-height: 1.1; font-variant-numeric: lining-nums; }
+.stat b { font-family: var(--serif); font-stretch: 80%; font-size: 26px; font-weight: 700; line-height: 1.1; font-variant-numeric: lining-nums; }
 .stat span { font-size: 12px; color: var(--muted); line-height: 1.3; }
 .stat-bad b { color: var(--bad); }
 .mini-list { display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
@@ -388,7 +401,7 @@ textarea.input { resize: vertical; min-height: 90px; }
 }
 .lesson:last-child { border-bottom: 0; }
 .lesson-time { display: flex; flex-direction: column; font-variant-numeric: tabular-nums; }
-.t-start { font-family: var(--serif); font-weight: 700; font-size: 17px; }
+.t-start { font-family: var(--serif); font-stretch: 80%; font-weight: 700; font-size: 17px; }
 .t-end, .t-pair { color: var(--muted); font-size: 12px; }
 .t-pair { margin-top: 4px; }
 .lesson-top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
@@ -414,13 +427,13 @@ textarea.input { resize: vertical; min-height: 90px; }
 .seg-item.is-active { color: var(--primary); border-bottom-color: var(--accent); }
 .week-nav { display: flex; align-items: center; gap: 10px; }
 .week-title { flex: 1; text-align: center; display: flex; flex-direction: column; }
-.week-title b { font-family: var(--serif); font-size: 17px; }
+.week-title b { font-family: var(--serif); font-stretch: 80%; font-size: 17px; }
 .day-chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(42px, 1fr)); gap: 6px; }
 .chip {
   position: relative; display: flex; flex-direction: column; align-items: center; padding: 6px 0; border-radius: 6px;
   background: var(--surface); border: 1px solid var(--line); font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em;
 }
-.chip b { font-family: var(--serif); font-size: 17px; color: var(--text); letter-spacing: 0; }
+.chip b { font-family: var(--serif); font-stretch: 80%; font-size: 17px; color: var(--text); letter-spacing: 0; }
 .chip.is-today { background: var(--primary); border-color: var(--primary); color: color-mix(in srgb, var(--primary-ink) 80%, transparent); }
 .chip.is-today b { color: var(--primary-ink); }
 .chip.is-empty { opacity: .5; }
@@ -445,7 +458,7 @@ textarea.input { resize: vertical; min-height: 90px; }
 .course-name { min-width: 0; }
 .course-name h3 { overflow-wrap: anywhere; }
 .course-score { white-space: nowrap; font-variant-numeric: lining-nums; }
-.course-score b { font-family: var(--serif); font-size: 24px; }
+.course-score b { font-family: var(--serif); font-stretch: 80%; font-size: 24px; }
 .course-score span { color: var(--muted); font-size: 13px; }
 .bar { position: relative; height: 6px; border-radius: 1px; background: var(--neutral-soft); overflow: visible; }
 .bar-sofar, .bar-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 1px; }
@@ -469,7 +482,7 @@ textarea.input { resize: vertical; min-height: 90px; }
 .sem { border-top: 1px solid var(--line); }
 .sem:first-of-type { border-top: 0; }
 .sem summary { cursor: pointer; padding: 10px 0; display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
-.sem summary b { font-family: var(--serif); }
+.sem summary b { font-family: var(--serif); font-stretch: 80%; }
 
 /* ведомость текущего семестра: строки вместо сетки карточек */
 .gradebook { gap: 0; }
@@ -484,7 +497,7 @@ textarea.input { resize: vertical; min-height: 90px; }
 .gb-row summary::-webkit-details-marker { display: none; }
 .gb-row summary:hover .gb-name b { color: var(--primary); }
 .gb-name { grid-area: name; display: flex; flex-direction: column; min-width: 0; }
-.gb-name b { font-family: var(--serif); font-size: 16px; line-height: 1.3; overflow-wrap: anywhere; }
+.gb-name b { font-family: var(--serif); font-stretch: 80%; font-size: 16px; line-height: 1.3; overflow-wrap: anywhere; }
 .gb-name span { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
 .gb-bar { grid-area: bar; position: relative; height: 5px; border-radius: 3px; background: var(--neutral-soft); }
 .gb-sofar, .gb-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; }
@@ -492,7 +505,7 @@ textarea.input { resize: vertical; min-height: 90px; }
 .gb-fill { background: var(--primary); }
 .gb-mark { position: absolute; top: -5px; bottom: -5px; border-right: 2px solid var(--accent); }
 .gb-score { grid-area: score; text-align: right; white-space: nowrap; line-height: 1; font-variant-numeric: lining-nums tabular-nums; }
-.gb-score b { font-family: var(--serif); font-size: 26px; font-weight: 700; }
+.gb-score b { font-family: var(--serif); font-stretch: 80%; font-size: 26px; font-weight: 700; }
 .gb-score span { display: block; color: var(--muted); font-size: 11.5px; margin-top: 3px; }
 .gb-status { grid-area: status; display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; color: var(--muted); }
 .gb-status i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: none; }
@@ -522,7 +535,7 @@ textarea.input { resize: vertical; min-height: 90px; }
 .dl, .exam { display: grid; grid-template-columns: 46px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
 .dl:last-child, .exam:last-child { border-bottom: 0; }
 .dl-date, .exam-date { display: flex; flex-direction: column; align-items: center; border: 1px solid var(--line-strong); border-top: 3px solid var(--primary); border-radius: 3px; padding: 3px 0 4px; line-height: 1.1; background: var(--surface); }
-.dl-date b, .exam-date b { font-family: var(--serif); font-size: 18px; }
+.dl-date b, .exam-date b { font-family: var(--serif); font-stretch: 80%; font-size: 18px; }
 .dl-date span, .exam-date span { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
 .dl-title, .exam-title { font-weight: 500; font-size: 14px; overflow-wrap: anywhere; }
 .dl-title a { color: var(--text); }
@@ -541,7 +554,7 @@ textarea.input { resize: vertical; min-height: 90px; }
   border: 1px solid var(--line); min-width: 0;
 }
 .quick-item .ic { color: var(--accent); }
-.quick-item span { font-family: var(--serif); font-weight: 700; font-size: 15px; line-height: 1.25; }
+.quick-item span { font-family: var(--serif); font-stretch: 80%; font-weight: 700; font-size: 15px; line-height: 1.25; }
 .quick-item small { color: var(--muted); font-size: 12px; }
 .quick-item:hover { border-color: var(--primary); }
 .req-list li + li { border-top: 1px solid var(--line); }
@@ -558,7 +571,7 @@ textarea.input { resize: vertical; min-height: 90px; }
 .stepper li::before { content: ""; position: absolute; top: 14px; left: calc(-50% + 16px); right: calc(50% + 16px); height: 1px; background: var(--line-strong); }
 .stepper li:first-child::before { display: none; }
 .stepper li.is-done::before, .stepper li.is-current::before { background: var(--primary); height: 2px; }
-.step-dot { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); border: 1px solid var(--line-strong); font-family: var(--serif); font-weight: 700; font-size: 13px; position: relative; z-index: 1; }
+.step-dot { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); border: 1px solid var(--line-strong); font-family: var(--serif); font-stretch: 80%; font-weight: 700; font-size: 13px; position: relative; z-index: 1; }
 .step-dot .ic { width: 15px; height: 15px; stroke-width: 2.4; }
 .is-done .step-dot { background: var(--primary); border-color: var(--primary); color: var(--primary-ink); }
 .is-current .step-dot { border: 2px solid var(--accent); color: var(--text); }
@@ -604,12 +617,12 @@ textarea.input { resize: vertical; min-height: 90px; }
 .profile-head { flex-direction: row; align-items: center; gap: 14px; }
 .profile-head h1 { font-size: 22px; }
 .error-page { align-items: center; text-align: center; gap: 12px; padding: 40px 16px; display: flex; flex-direction: column; }
-.error-code { font-family: var(--serif); font-size: 64px; font-weight: 700; color: var(--primary); line-height: 1; }
+.error-code { font-family: var(--serif); font-stretch: 80%; font-size: 64px; font-weight: 700; color: var(--primary); line-height: 1; }
 
 /* ---------- электронный документ ---------- */
 .doc-body { background: #e9e6df; color: #111; padding: 16px; }
 .doc-actions { max-width: 760px; margin: 0 auto 12px; display: flex; justify-content: space-between; gap: 8px; }
-.doc { position: relative; overflow: hidden; max-width: 760px; margin: 0 auto; background: #fff; color: #111; padding: 32px 24px; border-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,.12); line-height: 1.6; display: flex; flex-direction: column; gap: 12px; font-family: var(--serif); }
+.doc { position: relative; overflow: hidden; max-width: 760px; margin: 0 auto; background: #fff; color: #111; padding: 32px 24px; border-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,.12); line-height: 1.6; display: flex; flex-direction: column; gap: 12px; font-family: "Times New Roman", Georgia, serif; }
 .doc-watermark { position: absolute; inset: 0; display: grid; place-items: center; font-size: 56px; font-weight: 800; color: rgba(154, 43, 43, .1); transform: rotate(-24deg); pointer-events: none; text-align: center; }
 .doc-warning { font-size: 12px; color: #8a5c0c; background: #f7eed9; padding: 6px 10px; border-radius: 3px; font-family: var(--font); }
 .doc-head { display: flex; gap: 12px; align-items: center; border-bottom: 1px solid #ccc; padding-bottom: 12px; font-size: 14px; }

@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import logging
+import mimetypes
 from contextlib import asynccontextmanager
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -26,6 +27,10 @@ from . import security as sec
 from . import services as svc
 from .db import Base, SessionLocal, engine
 from .seed import seed_if_empty
+
+# Типы файлов, которых нет в стандартной таблице Python на части систем
+mimetypes.add_type("font/woff2", ".woff2")
+mimetypes.add_type("application/manifest+json", ".webmanifest")
 
 log = logging.getLogger("dekanat")
 BASE_DIR = Path(__file__).resolve().parent

@@ -238,3 +238,10 @@ def test_theme_light_by_default_dark_by_choice(s1):
     s1.cookies.set("theme", "<script>")       # чужое значение не попадает в разметку
     assert 'data-theme="light"' in s1.get("/").text
     s1.cookies.delete("theme")
+
+
+def test_font_served_with_font_type():
+    with TestClient(app) as c:
+        r = c.get("/static/fonts/open-sans-cyrillic-wdth-normal.woff2")
+        assert r.status_code == 200 and r.headers["content-type"] == "font/woff2"
+        assert r.content[:4] == b"wOF2"

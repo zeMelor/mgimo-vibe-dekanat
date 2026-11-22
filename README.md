@@ -61,8 +61,8 @@ Amvera (amvera.ru), конфигурация в [`amvera.yml`](amvera.yml): Pyth
 
 ## Стек и лицензии
 
-Python, FastAPI (MIT), Starlette (BSD-3), Uvicorn (BSD-3), Jinja2 (BSD-3), SQLAlchemy (MIT), bcrypt (Apache-2.0), python-multipart (Apache-2.0), tzdata (Apache-2.0).
-Иконки, логотип и стили написаны с нуля, шрифты системные, внешних CDN нет. Дизайн академичный: тёмно-синий и приглушённое золото, заголовки с засечками, тонкие линейки; логотип и фирменный стиль вуза не используются.
+Python, FastAPI (MIT), Starlette (BSD-3), шрифт Open Sans (OFL-1.1), Uvicorn (BSD-3), Jinja2 (BSD-3), SQLAlchemy (MIT), bcrypt (Apache-2.0), python-multipart (Apache-2.0), tzdata (Apache-2.0).
+Иконки, логотип и стили написаны с нуля. Шрифт — Open Sans (SIL Open Font License 1.1, текст лицензии в `app/static/fonts/OFL.txt`), файлы лежат в проекте, внешних CDN нет. Дизайн строгий: тёмно-синий и приглушённое золото, узкие жирные заголовки, тонкие линейки, светлая тема по умолчанию и тёмная по кнопке; логотип и фирменный стиль вуза не используются.
 
 ## Как сделано
 
