@@ -28,7 +28,7 @@
       {{ empty("coffee", "Пар нет", "В ближайшие дни занятий в расписании нет.") }}
     {% endif %}
     {% if week_changes %}
-      <a class="hint hint-warn" href="/schedule">{{ icon("alert") }}<span>На этой неделе {{ week_changes }} {{ plural(week_changes, "изменение", "изменения", "изменений") }} в расписании</span>{{ icon("right") }}</a>
+      <a class="hint hint-warn" href="/schedule">{{ icon("alert") }}<span>{% if today.weekday() == 6 %}На следующей неделе{% else %}На этой неделе{% endif %} {{ week_changes }} {{ plural(week_changes, "изменение", "изменения", "изменений") }} в расписании</span>{{ icon("right") }}</a>
     {% endif %}
   </section>
 

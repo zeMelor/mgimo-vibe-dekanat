@@ -245,7 +245,7 @@ def dashboard(request: Request, user: m.User = Depends(current_user), db: Sessio
     notes = db.scalars(select(m.Notification).where(m.Notification.user_id == user.id)
                        .order_by(m.Notification.created_at.desc()).limit(3)).all()
     week = svc.default_week(t)
-    changes = svc.changes_between(db, user.group_id, max(t, week), week + timedelta(days=6))
+    changes = svc.changes_between(db, user.group_id, week, week + timedelta(days=6))
     return render(request, "dashboard.html", db, lessons=lessons, has_remaining=bool(remaining),
                   next_day=next_day, next_lessons=next_lessons, grades=grades,
                   deadlines=deadlines[:4], deadlines_total=len(deadlines),
@@ -273,7 +273,9 @@ def schedule(request: Request, week: date | None = None, view: str = "week",
         ctx.update(lessons=lessons, next_day=nd, next_lessons=nl)
     else:
         days = svc.build_week(db, user.group_id, monday)
-        ctx.update(days=days, total_changes=sum(dd["changes"] for dd in days))
+        # Считаем записи об изменениях, а не дни: перенос пары — одно изменение, хоть и виден в двух днях.
+        total = svc.changes_between(db, user.group_id, monday, monday + timedelta(days=6))
+        ctx.update(days=days, total_changes=total)
     return render(request, "schedule.html", db, **ctx)
 
 
