@@ -63,7 +63,8 @@
   <div class="lesson-body">
     <div class="lesson-top">
       <h3 class="lesson-title">{{ e.subject }}</h3>
-      {% if e.state == "now" %}{{ badge("Идёт сейчас", "primary") }}{% elif e.state == "next" %}{{ badge("Следующая", "info") }}{% endif %}
+      {% if e.state == "now" %}{{ badge(("Идёт · ещё " ~ e.mins|duration) if e.mins else "Идёт сейчас", "primary", "clock") }}
+      {%- elif e.state == "next" %}{{ badge(("Через " ~ e.mins|duration) if e.mins and e.mins <= 180 else "Следующая", "info", "clock") }}{% endif %}
       {% if e.status == "cancelled" %}{{ badge("Отменена", "bad", "x") }}
       {% elif e.status == "moved_out" %}{{ badge("Перенесена", "warn", "arrow") }}
       {% elif e.status == "moved_in" %}{{ badge("Перенос", "info", "arrow") }}

@@ -366,3 +366,23 @@ def test_document_qr_check(s2):
     assert "Документ подлинный" in page.text and "Ласточкин Т. Р." in page.text
     assert "Тимур" not in page.text and "24-1183" not in page.text  # минимум данных
     assert TestClient(app).get("/check/not-a-real-token").status_code == 404
+
+
+def test_lesson_countdown(monkeypatch):
+    from datetime import datetime
+    from app import services
+    from app.db import SessionLocal
+    from app import models as m
+
+    assert services.duration(45) == "45 мин" and services.duration(80) == "1 ч 20 мин" and services.duration(120) == "2 ч"
+    with TestClient(app), SessionLocal() as db:
+        group = db.query(m.User).filter_by(login="student1").one().group_id
+        monday = services.week_start(services.today())
+        # понедельник, 10:00: идёт 1 пара (до 10:20); следующая — первая неотменённая после неё
+        monkeypatch.setattr(services, "now", lambda: datetime.combine(monday, datetime.min.time()).replace(hour=10))
+        lessons = services.build_day(db, group, monday)
+    now = next(e for e in lessons if e["state"] == "now")
+    nxt = next(e for e in lessons if e["state"] == "next")
+    starts_in = (datetime.strptime(nxt["start"], "%H:%M") - datetime.strptime("10:00", "%H:%M")).seconds // 60
+    assert now["pair"] == 1 and now["mins"] == 20
+    assert nxt["mins"] == starts_in and nxt["status"] not in ("cancelled", "moved_out")

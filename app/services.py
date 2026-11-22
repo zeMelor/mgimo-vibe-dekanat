@@ -132,7 +132,14 @@ def decimal(x) -> str:
     return str(x).replace(".", ",")
 
 
+def duration(mins: int) -> str:
+    """45 → «45 мин», 80 → «1 ч 20 мин», 120 → «2 ч»."""
+    h, m = divmod(max(0, int(mins)), 60)
+    return " ".join(p for p in (f"{h} ч" if h else "", f"{m} мин" if m or not h else "") if p)
+
+
 FILTERS = {
+    "duration": duration,
     "decimal": decimal,
     "month_short": ru_month_short,
     "ru_date": ru_date,
@@ -240,14 +247,17 @@ def build_day(db: Session, group_id: int | None, day: date) -> list[dict]:
         e["start"], e["end"] = PAIRS[e["pair"]]
         e["active"] = e["status"] not in ("cancelled", "moved_out")
         e["state"] = ""
+        e["mins"] = None   # для «идёт ещё N мин» и «через N мин»
         if day == current.date() and e["active"]:
             start, end = _pair_dt(day, e["pair"], 0), _pair_dt(day, e["pair"], 1)
             if start <= current <= end:
                 e["state"] = "now"
+                e["mins"] = -(-int((end - current).total_seconds()) // 60)
             elif current > end:
                 e["state"] = "past"
             elif not next_marked:
                 e["state"] = "next"
+                e["mins"] = -(-int((start - current).total_seconds()) // 60)
                 next_marked = True
     return out
 
