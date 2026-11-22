@@ -14,7 +14,7 @@ from urllib.parse import quote, urlparse
 
 from fastapi import Depends, FastAPI, Form, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import PlainTextResponse, RedirectResponse, Response
+from fastapi.responses import FileResponse, PlainTextResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import func, select, update
@@ -173,6 +173,18 @@ async def _server_error(request: Request, exc: Exception):
 @app.get("/healthz")
 def healthz():
     return PlainTextResponse("ok")
+
+
+# Установка на телефон как приложение (PWA). Service worker отдаётся с корня сайта,
+# чтобы его область действия была весь кабинет; кеширует он только статику.
+@app.get("/manifest.webmanifest", include_in_schema=False)
+def web_manifest():
+    return FileResponse(BASE_DIR / "static" / "manifest.webmanifest", media_type="application/manifest+json")
+
+
+@app.get("/sw.js", include_in_schema=False)
+def service_worker():
+    return FileResponse(BASE_DIR / "static" / "sw.js", media_type="application/javascript")
 
 
 @app.get("/login")

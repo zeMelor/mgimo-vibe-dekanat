@@ -214,3 +214,18 @@ def test_bad_query_is_friendly(s1):
     r = s1.get("/schedule?week=not-a-date")
     assert r.status_code == 400 and "Некорректный запрос" in r.text
     assert s1.get("/requests/new?type=hack").status_code == 404
+
+
+def test_pwa_files():
+    import json
+    with TestClient(app) as c:
+        r = c.get("/manifest.webmanifest")
+        assert r.status_code == 200 and r.headers["content-type"].startswith("application/manifest+json")
+        man = json.loads(r.content)
+        assert man["display"] == "standalone" and len(man["icons"]) >= 2
+        for icon in man["icons"]:
+            assert c.get(icon["src"]).status_code == 200
+        r = c.get("/sw.js")
+        assert r.status_code == 200 and "javascript" in r.headers["content-type"]
+        assert r.headers["cache-control"] == "no-store"   # обновление service worker без задержек
+        assert c.get("/static/offline.html").status_code == 200

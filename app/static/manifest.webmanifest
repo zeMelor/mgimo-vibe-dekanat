@@ -1,0 +1,18 @@
+{
+  "name": "Цифровой деканат — концепт",
+  "short_name": "Деканат",
+  "description": "Концепт личного кабинета студента для MGIMO×AI Challenge 2026. Все данные вымышлены.",
+  "lang": "ru",
+  "dir": "ltr",
+  "start_url": "/?source=app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#edf1f8",
+  "theme_color": "#173a8a",
+  "icons": [
+    { "src": "/static/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/static/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/static/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

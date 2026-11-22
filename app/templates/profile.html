@@ -46,6 +46,14 @@
   </section>
   {% endif %}
 
+  <section class="card" data-install hidden>
+    <div class="card-h"><h2>{{ icon("download") }}Приложение на телефоне</h2></div>
+    <p class="sub" data-install-intro hidden>Добавьте кабинет на главный экран: он будет открываться с иконкой и без адресной строки, как обычное приложение.</p>
+    <p class="sub" data-install-ios hidden>На iPhone: откройте кабинет в Safari, нажмите «Поделиться» и выберите «На экран „Домой“».</p>
+    <p class="sub" data-install-done hidden>Кабинет установлен на этом устройстве как приложение.</p>
+    <div class="btn-row"><button class="btn btn-primary btn-sm" type="button" data-install-btn hidden>{{ icon("download") }}Установить на телефон</button></div>
+  </section>
+
   <section class="card">
     <div class="card-h"><h2>{{ icon("shield") }}Безопасность</h2></div>
     <p class="sub">Активных входов: {{ sessions }}. Сессия действует 7 дней, потом нужно войти снова.</p>

@@ -29,6 +29,41 @@
     startLoading();
   });
 
+  // Установка на главный экран (PWA)
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () { navigator.serviceWorker.register("/sw.js").catch(function () {}); });
+  }
+  var installBox = document.querySelector("[data-install]");
+  if (installBox) {
+    var installBtn = installBox.querySelector("[data-install-btn]");
+    var deferredPrompt = null;
+    var show = function (part) {
+      installBox.hidden = false;
+      var el = installBox.querySelector(part);
+      if (el) el.hidden = false;
+    };
+    var standalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+    if (standalone) {
+      show("[data-install-done]");
+    } else if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
+      show("[data-install-intro]"); show("[data-install-ios]");
+    }
+    window.addEventListener("beforeinstallprompt", function (e) {
+      e.preventDefault();
+      deferredPrompt = e;
+      show("[data-install-intro]"); show("[data-install-btn]");
+    });
+    if (installBtn) installBtn.addEventListener("click", function () {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function () { deferredPrompt = null; installBtn.hidden = true; });
+    });
+    window.addEventListener("appinstalled", function () {
+      if (installBtn) installBtn.hidden = true;
+      show("[data-install-done]");
+    });
+  }
+
   // Кнопка печати электронной справки
   document.addEventListener("click", function (e) {
     if (e.target.closest && e.target.closest("[data-print]")) window.print();
