@@ -10,7 +10,7 @@
 
 <div class="grid-dash">
   {# ---------- Пары ---------- #}
-  <section class="card span-2">
+  <section class="card span-2 dash-lessons">
     <div class="card-h">
       <h2>{{ icon("calendar") }}{% if has_remaining %}Сегодня{% elif next_day %}Ближайшие пары — {{ next_day|rel_day }}{% else %}Пары{% endif %}</h2>
       <a class="link" href="/schedule">Неделя {{ icon("right") }}</a>
@@ -33,7 +33,7 @@
   </section>
 
   {# ---------- Как дела ---------- #}
-  <section class="card status-card tone-{{ grades.tone }}">
+  <section class="card status-card dash-status tone-{{ grades.tone }}">
     <div class="card-h"><h2>{{ icon("chart") }}Как у меня дела</h2><a class="link" href="/grades">Подробнее {{ icon("right") }}</a></div>
     <p class="status-head">{{ grades.headline }}</p>
     <p class="status-text">{{ grades.text }}</p>
@@ -52,7 +52,7 @@
   </section>
 
   {# ---------- Дедлайны ---------- #}
-  <section class="card">
+  <section class="card dash-deadlines">
     <div class="card-h"><h2>{{ icon("clock") }}Ближайшие дедлайны</h2>{% if deadlines_total > 4 %}<a class="link" href="/notifications">Все {{ deadlines_total }} {{ icon("right") }}</a>{% endif %}</div>
     {% if deadlines %}
       <ul class="dl-list">{% for x in deadlines %}{{ deadline_row(x) }}{% endfor %}</ul>
@@ -62,7 +62,7 @@
   </section>
 
   {# ---------- Заявки ---------- #}
-  <section class="card">
+  <section class="card dash-requests">
     <div class="card-h"><h2>{{ icon("file") }}Мои заявки</h2><a class="link" href="/requests">Все {{ icon("right") }}</a></div>
     {% if active_requests %}
       <ul class="req-mini">
@@ -77,7 +77,7 @@
   </section>
 
   {# ---------- Уведомления ---------- #}
-  <section class="card">
+  <section class="card dash-notes">
     <div class="card-h"><h2>{{ icon("bell") }}Уведомления{% if unread %} <span class="count">{{ unread }}</span>{% endif %}</h2><a class="link" href="/notifications">Все {{ icon("right") }}</a></div>
     {% if notes %}
       <ul class="note-mini">

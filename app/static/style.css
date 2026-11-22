@@ -39,31 +39,31 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0e1420;
-    --surface: #141b29;
-    --surface-2: #1a2232;
-    --text: #ece6da;
-    --muted: #9ba2ae;
-    --line: #253046;
-    --line-strong: #344159;
-    --primary: #9db3e3;
-    --primary-2: #b8c9ee;
-    --primary-ink: #0e1420;
-    --primary-soft: #1c2740;
-    --accent: #d1ad68;
-    --accent-soft: #2a2416;
-    --good: #84c39d;
-    --good-soft: #15281f;
-    --warn: #dcae5c;
-    --warn-soft: #2c2415;
-    --bad: #e3918b;
-    --bad-soft: #321b1b;
-    --info: #94b6dc;
-    --info-soft: #172436;
-    --neutral-soft: #222a3a;
-    --nav-bg: #111a2b;
-    --nav-ink: #ece6da;
-    --shadow: none;
+    --bg: #090e18;
+    --surface: #131c2d;
+    --surface-2: #1a2539;
+    --text: #eef0f5;
+    --muted: #9ea7b8;
+    --line: #26334c;
+    --line-strong: #344563;
+    --primary: #8fb0f0;
+    --primary-2: #b3cbf6;
+    --primary-ink: #0a1020;
+    --primary-soft: #1a2846;
+    --accent: #e0b25a;
+    --accent-soft: #2e2512;
+    --good: #7fd0a1;
+    --good-soft: #13291f;
+    --warn: #e8b55e;
+    --warn-soft: #2e2413;
+    --bad: #f0928b;
+    --bad-soft: #341a1b;
+    --info: #92bdf0;
+    --info-soft: #14233a;
+    --neutral-soft: #212d44;
+    --nav-bg: #14306e;
+    --nav-ink: #ffffff;
+    --shadow: 0 1px 0 rgba(255, 255, 255, .03) inset, 0 8px 24px rgba(0, 0, 0, .35);
     color-scheme: dark;
   }
 }
@@ -172,7 +172,7 @@ body.is-loading .loadbar { width: 85%; transition: width 3s cubic-bezier(.1, .7,
   .side-user-text small { opacity: .7; font-size: 12px; }
   .topbar, .tabbar { display: none; }
   .main { padding-bottom: 0; }
-  .content { padding: 30px 36px; gap: 18px; }
+  .content { padding: 28px 36px 36px; gap: 22px; }
   h1 { font-size: 30px; }
 }
 
@@ -182,6 +182,10 @@ body.is-loading .loadbar { width: 85%; transition: width 3s cubic-bezier(.1, .7,
   padding: 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px; min-width: 0;
 }
 .card-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+@media (prefers-color-scheme: dark) {
+  .card { border-color: var(--line-strong); background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 92%, #fff) 0, var(--surface) 64px); }
+  .sidebar { box-shadow: 1px 0 0 rgba(255, 255, 255, .06); }
+}
 .card-h h2 { display: flex; align-items: center; gap: 8px; }
 .card-h h2 .ic { color: var(--accent); }
 .card-good { border-color: color-mix(in srgb, var(--good) 40%, var(--line)); }
@@ -548,4 +552,37 @@ textarea.input { resize: vertical; min-height: 90px; }
   .no-print { display: none !important; }
   .doc-body { background: #fff; padding: 0; }
   .doc { box-shadow: none; }
+}
+
+/* ---------- компьютер: отдельный слой в конце файла, чтобы перекрывать базовые правила ---------- */
+@media (min-width: 960px) {
+  .card { padding: 20px 22px; gap: 14px; }
+  .card-h { margin: -2px 0 2px; }
+  .card-h h2 { font-size: 18px; }
+  .grid-dash, .grid-2, .course-list { gap: 20px; }
+  /* приветствие на главной — тёмно-синий баннер с золотой кромкой */
+  .hello {
+    position: relative; overflow: hidden; padding: 24px 28px; border: 0; border-radius: 10px;
+    background: linear-gradient(110deg, var(--nav-bg) 0%, color-mix(in srgb, var(--nav-bg) 78%, #2f6fd6) 100%);
+    color: #fff; box-shadow: 0 10px 30px rgba(19, 48, 120, .18); border-bottom: 3px solid var(--accent);
+  }
+  .hello::after {
+    content: ""; position: absolute; right: -60px; top: -80px; width: 280px; height: 280px; border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, .12); box-shadow: 0 0 0 40px rgba(255, 255, 255, .03), 0 0 0 80px rgba(255, 255, 255, .02);
+  }
+  .hello h1 { color: #fff; font-size: 32px; }
+  .hello .muted { color: rgba(255, 255, 255, .78); }
+  .hello-date { color: #f1cf8a; }
+  .grid-dash { align-items: start; }
+  .course { padding: 0; }
+  .page-h { padding-bottom: 16px; }
+}
+/* главная на широком экране: слева пары и под ними заявки с уведомлениями, справа сводка и дедлайны */
+@media (min-width: 1200px) {
+  .grid-dash { grid-template-columns: 1fr 1fr minmax(300px, .9fr); }
+  .dash-lessons { grid-column: 1 / span 2; grid-row: 1; }
+  .dash-status { grid-column: 3; grid-row: 1; }
+  .dash-requests { grid-column: 1; grid-row: 2; }
+  .dash-notes { grid-column: 2; grid-row: 2; }
+  .dash-deadlines { grid-column: 3; grid-row: 2 / span 2; }
 }
