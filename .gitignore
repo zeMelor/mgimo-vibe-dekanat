@@ -6,3 +6,4 @@ data/
 *.local.md
 .pytest_cache/
 docs/screenshots/raw/
+dist/
